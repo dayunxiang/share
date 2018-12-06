@@ -1,0 +1,56 @@
+@charset "UTF-8";
+//通用
+* {
+  box-sizing: border-box;
+}
+
+input, button, select, textarea, a, input:focus, button:focus, select:focus, textarea:focus, a:focus {
+  outline: none
+}
+
+textarea {
+  resize: none
+}
+
+body, dl, dd, ul, ol, h1, h2, h3, h4, h5, h6, pre, form, fieldset, legend, input, textarea, optgroup, p, blockquote,
+figure, hr, menu, dir, thead, tbody, tfoot, th, td {
+  margin: 0;
+  padding: 0;
+}
+
+ul, ol, li {
+  list-style-type: none;
+  list-style-image: none;
+  list-style: none;
+}
+
+select {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #333;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: #f4f4f4;
+  font-size: 14px;
+  color: #333;
+  // font-family: 'pingfang SC', 'helvetica neue', arial, 'hiragino sans gb', 'microsoft yahei ui', 'microsoft yahei', simsun, sans-serif;
+  // font-size: 14px;
+}

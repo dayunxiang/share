@@ -1,0 +1,170 @@
+@charset "UTF-8";
+
+//登录页面
+.login-wrap {
+  height: 100vh;
+  background: url('./images/loginbg.jpg')  no-repeat;
+  background-size: cover;
+}
+.login-con {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  width: 840px;
+  height: 480px;
+  background-color: #1D4DAB;
+  .login-header {
+    padding: 14px 20px;
+    color: #fff;
+    img {
+      float: left;
+      margin-right: 16px;
+    }
+    span {
+      font-size: 24px;
+    }
+  }
+  .login-box {
+    width: 320px;
+    margin: auto;
+    padding-top: 97px;
+    .el-form.item {
+      margin-bottom: 30px;
+    }
+    .el-form-item__content {
+      position: relative;
+      line-height: 38px;
+      .fa {
+        position: absolute;
+        top: 0;
+        left: 14px;
+        line-height: 38px;
+        z-index: 99;
+        color: #bebec6;
+      }
+      .el-input {
+        height: 40px;
+        input {
+          border: 1px solid #cdd1d3;
+          padding-left: 30px;
+        }
+      }
+    }
+    .el-button {
+      width: 100%;
+      background-color: #0e7de6;
+      border: 1px solid #0f3e97;
+    }
+    .footer-login {
+      position: absolute;
+      bottom: -60px;
+      p {
+        margin-top: 10px;
+        color: #000;
+        text-align: center;
+      }
+    }
+  }
+}
+
+//首页最小宽度
+.homeIndex {
+  min-width: 1200px;
+}
+
+
+//弹框按钮位置
+.footer {
+  text-align: right;
+}
+ .el-container .el-aside .el-scrollbar .el-scrollbar__wrap {
+    overflow-x: hidden;
+ }
+ .operateul {
+    text-align: center;
+  }
+.operateul{
+  padding: 1px;
+  li{
+    width: 100%;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px #ccc dashed;
+    &:hover{
+      background-color: #409EFF;
+      color: #fff;
+    }
+  }
+  i{
+    padding-right: 10px;
+  }
+}
+.tip {
+  width: 500px;
+  height: 150px;
+  max-height: 500px;
+  background-color: #eee;
+}
+.tip .tipCon {
+  overflow-y:auto;
+  line-height: 20px;
+}
+.tip .el-scrollbar__wrap {
+ overflow-x: hidden;
+ }
+.question {
+  display: inherit;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow:ellipsis; 
+}
+.myInput .el-input__inner {
+  max-width: 214px;
+}
+
+//begin
+.title {
+  height: 50px;
+  line-height: 50px;
+  background-color: #fff;
+  font-size: 16px;
+  padding-left: 20px;
+}
+.searchBar {
+  .el-form-item__label {
+    font-size: 12px;
+    height: 28px;
+    line-height: 28px;
+    background: #f3f7fa;
+    border: 1px solid #ccc;
+    text-align: center;
+    border-right: none;
+  }
+  .el-form-item__content {
+    height: 28px;
+    line-height: 28px;
+  }
+  .el-form-item{
+    margin-left: 0;
+    margin-right: 15px;
+    margin-bottom: 0;
+  }
+  .el-input--mini {
+    height: 28px;
+    line-height: 28px;
+  }
+  .el-input--mini .el-input__inner,.el-range-editor--mini.el-input__inner {
+    line-height: 28px;
+    height: 28px;
+    border: 1px solid #ccc;
+  }
+}
+//操作按钮样式
+.operateBtn {
+  background-color: #eef9ff;
+  border: 1px solid #009dec;
+  color: #009dec;
+}
