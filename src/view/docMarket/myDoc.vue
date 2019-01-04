@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<div class="page-title">我的文档</div>
-		<div class="main-container">
+		<div class="main-container pt-twoline">
 			<div class="mar-20">
 				<api-search  @search="search"></api-search>
 				<div>
 					<el-table border :data="list">
 						<el-table-column type="index" label="序号" fixed width="50"></el-table-column>
-						<el-table-column label="名称" prop="name"></el-table-column>
+						<el-table-column label="文档名称" prop="name"></el-table-column>
 						<el-table-column label="购买时间" prop="bougthTime"></el-table-column>
 						<el-table-column label="价格（水利币）" prop="payStander">
 							<template slot-scope="scope">
@@ -17,7 +17,7 @@
 						</el-table-column>
 						<el-table-column label="操作" width="120">
 							<template slot-scope="scope">
-								<el-button type="text" @click="toDetail(scope.row)">下载</el-button>
+								<a  @click="toDetail(scope.row)">下载</a>
 							</template>
 						</el-table-column>
 					</el-table>
@@ -75,11 +75,11 @@
       },
       toDetail(row) {
 				let param = {
-          id: row.id
+          id: row.documentId
         }
         getDocId(param).then(resp => {
           if (resp.code == 200) {
-            window.location.href = 'manage/attachment/' + resp.data
+          	window.location.href = '/manage/attachment/' + resp.data.attachmentId + '?name=' + resp.data.name
           } else {
             this.$message({
               type: 'error',

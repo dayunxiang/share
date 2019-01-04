@@ -5,27 +5,28 @@
 			<div class="mar-20 info-block">
 				<p class="title">基本信息</p>
 				<div class="tab-container">
-		      <el-form ref="form" :model="form" :rules="rules" label-width="94px" label-position="left" >
-		        <el-form-item label="名称：" prop="name">
-		          <el-input size="mini" class="form-input" v-model="form.name" maxlength="50"></el-input>
+		      <el-form ref="form" :model="form" :rules="rules" label-width="96px" label-position="left" >
+		        <el-form-item label="数据名称：" prop="name">
+		          <el-input size="mini" class="form-input" v-model="form.name" maxlength="50" placeholder="请输入数据名称"></el-input>
 		          <el-button size="mini" type="primary" style="margin-left:15px;" @click="uploadImg">
 		            <img :src="uploadUrl"/>
 		          </el-button>
 		        </el-form-item>
-            <span class="red red-pos">*</span>
-		        <el-form-item label="类型：" prop="type" class="line-block width-84">
-              <div class="height-40">
+            
+		        <el-form-item label="类型：" prop="type" class="is-required">
+              <div class="height-40-copy">
   		          <el-checkbox-group v-model="typeList" @change="changeTypeList">
   		            <el-checkbox v-for="(item, index) in typeArray" :label="item.codeExt" :checked="item.checked"  :key="'key0' + index">{{item.name}}</el-checkbox>              
   		          </el-checkbox-group>
               </div>
 		        </el-form-item>
-            <el-form-item label="对象类型：" prop="basicType">
+            <el-form-item label="对象类型：" prop="basicType" class="is-required">
               <el-button type="primary" size="mini" @click="chooseBasic">选择对象</el-button>
+              <el-input v-model="form.basicType" class="hide"></el-input>
               <span class="basic-span" v-for="(item, index) in chooseTypeArray" :key="index">{{item.tableNote}} <i class="el-icon-close" @click="closeBasic(item, index)"></i></span>
             </el-form-item>
 		        <el-form-item label="数据简介：" prop="shortDescription">
-              <el-input type="textarea" size="mini" class="radius" v-model="form.shortDescription" maxlength="500"></el-input>
+              <el-input type="textarea" size="mini" class="radius" v-model="form.shortDescription" maxlength="500" placeholder="请输入数据简介"></el-input>
 		        </el-form-item>
 		        <el-form-item label="是否收费：" prop="isFree" class="line-block">
               <el-radio-group v-model="form.isFree">
@@ -42,10 +43,12 @@
               <el-input-number v-model="form.payStandard" :precision="2" :min="0" :max="999999.99" size="mini" class="mgn" ></el-input-number><span>水利币/份</span>
             </span> -->
 		      </el-form>
+          <template v-if="delImgVisible">
 		      <div class="img-preview" v-for="(n, index) in imgList" :key="index" :data-index="index">
 		        <img @click="preview($event)" :src="n.url"/>
-            <i class="el-icon-error img-close" @click="delImg" v-if="delImgVisible"></i>
+            <i class="el-icon-error img-close" @click="delImg"></i>
 		      </div>
+        </template>
 		    </div>
 			</div>
 			<div class="mar-20 info-block">
@@ -53,10 +56,10 @@
         <div class="tab-container">
           <div>
             <span class="red mr-4">*</span><span>示例图片</span>
-            <el-button size="mini" type="primary" style="margin-left:15px;" @click="$refs.imgFile.click()">
+            <el-button size="mini" type="primary" style="margin-left:15px;" @click="$refs.imgFile2.click()">
               <img :src="uploadUrl"/>
             </el-button>
-            <input id="upload" ref="imgFile" class="hide" type="file" accept="image/*" @change="doUploadImg2"/>
+            <input id="upload" ref="imgFile2" class="hide" type="file" accept="image/*" @change="doUploadImg2"/>
             <span class="grey">上传数据列表样式图片，格式限制为JPEG、JPG、TIFF、RAW、BMP、GIF、PNG。限制在5M以内</span>
           </div>
           <div class="preview" id="preview"></div>
@@ -121,7 +124,7 @@
       <div class="basic-list">
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.codeExt" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -166,13 +169,13 @@
         },
         rules: {
           name: [
-            {required: true, message: '请输入名称', trigger: 'blur'}
+            {required: true, message: '请输入数据名称', trigger: 'blur'}
           ],
           type: [
             {validator: this.checkMupltiBox, key:'typeList', message:'请选择类型', trigger: 'change'}
           ],
           basicType: [
-            {required: true, message: '请选择对象类型', trigger: 'blur'}
+            {validator: this.checkBasicType, trigger: 'change'}
           ],
           shortDescription: [
             {required: true, message: '请输入数据简介', trigger: 'blur'}
@@ -249,26 +252,31 @@
         this.showUploadImg = true
       },
       addImg() {
-        let formData = new FormData()
-        formData.append('file', this.file)
-        uploadFile(formData).then(resp => {
-          if (resp.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '上传成功'
-            })
-            this.imgList[0].url = '/webapp/attachment/' + resp.data.attachmentId
-            this.form.picAttachmentId =  resp.data.attachmentId
-            this.form.picPath = resp.data.attachmentPath
-            this.showUploadImg = false
-            this.delImgVisible = true
-          } else {
-             this.$message({
-              type: 'success',
-              message: resp.message
-            })
-          }
-        })
+        if(!this.defaultImg && this.file) {
+          let formData = new FormData()
+          formData.append('file', this.file)
+          uploadFile(formData).then(resp => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '上传成功'
+              })
+              this.imgList[0].url = '/webapp/attachment/' + resp.data.attachmentId
+              this.form.picAttachmentId =  resp.data.attachmentId
+              this.form.picPath = resp.data.attachmentPath
+              this.showUploadImg = false
+              this.delImgVisible = true
+            } else {
+               this.$message({
+                type: 'success',
+                message: resp.message
+              })
+            }
+          })
+        } else {
+          this.showUploadImg = false
+        }
+        
       },
       changeImgTab(flag) {
         if (flag == 1) {
@@ -478,7 +486,7 @@
         this.showBasic = false
         this.chooseTypeArray = []
         this.basicTypeArray.forEach(v => {
-          if (this.basicTypeList.indexOf(v.codeExt) > -1) {
+          if (this.basicTypeList.indexOf(v.type) > -1) {
             this.chooseTypeArray.push(v)
           }
         })
@@ -486,6 +494,14 @@
       closeBasic(data, index) {
         this.chooseTypeArray.splice(index, 1)
         this.basicTypeList.splice(this.basicTypeList.indexOf(data.codeExt), 1)
+        this.form.basicType = this.basicTypeList.join()
+      },
+      checkBasicType(rule, value, callback) {
+        if(this.basicTypeList.length > 0) {
+          callback()
+        } else {
+          callback(new Error ('请选择对象类型'))
+        }
       }
 		}
 	}

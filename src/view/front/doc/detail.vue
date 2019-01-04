@@ -29,14 +29,20 @@
       </div>
     </div>
     <div class="doc-btn">
-      <el-button type="primary" @click="download">立即下载</el-button>
-      <el-button @click="collect">收藏</el-button>
+      <el-button type="primary" @click="download">{{docDetail.isDownload == 1 ? '再次下载' : '立即下载'}}</el-button>
+      <el-button @click="collect">
+        <img :src="starUrl2" v-if="docDetail.isCollect == 0"/>
+        <img :src="starUrl3" v-if="docDetail.isCollect == 1"/>
+        {{ docDetail.isCollect == 1 ? '取消收藏' : '收藏'}}
+      </el-button>
     </div>
   </div>
 </template>
 
 <script>
   import {getApiList, getDocDetail, collectDoc, getDocId} from '@/api/front/index'
+  import { getToken } from '@/utils/auth'
+  import { cancelCollect } from '@/api/doc/index'
   import axios from 'axios'
   export default {
     components: {
@@ -46,6 +52,7 @@
     },
     data() {
       return {
+       
         priceUrl: require('@/assets/images/price2.png'),
         downloadUrl: require('@/assets/images/doc_download.png'),
         starUrl: require('@/assets/images/doc_star.png'),
@@ -61,27 +68,57 @@
         total: 0,
         createTime: [],
         list: [],
-        docDetail: {}
+        docDetail: {},
+        starUrl2: require('@/assets/images/star2.png'),
+        starUrl3: require('@/assets/images/star3.png')
        
       }
     },
     methods: {
       getDetail() {
-        getDocDetail(this.$route.query.id).then(resp => {
+         document.body.scrollTop = 0
+         document.documentElement.scrollTop = 0
+         window.pageYOffset = 0
+        sessionStorage.setItem('tabNum', 4)
+        let tag = getToken() ? '' : 'tourists/'
+        getDocDetail(tag, this.$route.query.id).then(resp => {
           this.docDetail = resp.data
         })
       },
       collect() {
-        collectDoc({
-          id: this.$route.query.id
-        }).then(resp => {
-          if (resp.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '收藏成功'
-            })
-          }
-        })
+        if(this.docDetail.isCollect == 0) {
+          collectDoc({
+            id: this.$route.query.id
+          }).then(resp => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '收藏成功'
+              })
+              this.getDetail()
+            } else {
+              this.$message({
+                type: 'error',
+                message: resp.message
+              })
+            }
+          })
+        } else if(this.docDetail.isCollect == 1) {
+          cancelCollect(this.docDetail.collectId).then(resp => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '取消成功'
+              })
+              this.getDetail()
+            } else {
+              this.$message({
+                type: 'error',
+                message: resp.message
+              })
+            }
+          })
+        }
       },
       download() {
         let param = {
@@ -89,7 +126,8 @@
         }
         getDocId(param).then(resp => {
           if (resp.code == 200) {
-            window.location.href = 'manage/attachment/' + resp.data
+            window.location.href = '/manage/attachment/' + resp.data.attachmentId + '?name=' + resp.data.name
+            this.getDetail()
           } else {
             this.$message({
               type: 'error',
@@ -133,6 +171,9 @@
      width: 100%;
      height: 100%;
      overflow: hidden;
+   }
+   .status-success {
+    color: #13b979;
    }
 </style>
 

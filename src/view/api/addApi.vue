@@ -19,12 +19,15 @@
           </el-button>
         </el-form-item>
         <el-form-item label="API类型：" prop="apiType">
+          <div class="height-40-copy">
           <el-checkbox-group v-model="apiTypeList" @change="changeApiTypeList">
             <el-checkbox :label="item.codeExt" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in apiTypeArray" :key="'key0' + index">{{item.name}}</el-checkbox>              
           </el-checkbox-group>
+        </div>
         </el-form-item>
-        <el-form-item label="对象类型：" prop="basicType">
+        <el-form-item label="对象类型：" prop="basicType" class="is-required">
           <el-button type="primary" size="mini" @click="chooseBasic">选择对象</el-button>
+          <el-input v-model="form.basicType" class="hide"></el-input>
           <span class="basic-span" v-for="(item, index) in chooseTypeArray" :key="index">{{item.tableNote}} <i class="el-icon-close" @click="closeBasic(item, index)"></i></span>
         </el-form-item>
         <el-form-item label="API简介：" prop="apiShortDescription">
@@ -34,10 +37,12 @@
           <el-input type="textarea" size="mini" class="radius"  placeholder="请输入功能介绍" v-model="form.apiDescription" maxlength="800"></el-input>
         </el-form-item>
       </el-form>
+      <template v-if="delImgVisible">
       <div class="img-preview" v-for="(n, index) in imgList" :key="index" :data-index="index">
         <img @click="preview($event)" :src="n.url"/>
-        <i class="el-icon-error img-close" @click="delImg" v-if="delImgVisible"></i>
+        <i class="el-icon-error img-close" @click="delImg"></i>
       </div>
+    </template>
     </div>
 
     <el-form :model="form2" :rules="rules2" ref="form2" label-width="100px" label-position="left" >
@@ -76,6 +81,7 @@
           <thead class="has-gutter">
             <tr class="">
               <th class="is-leaf">名称</th>
+              <th class="is-leaf">请求类型</th>
               <th class="is-leaf">必填</th>
               <th class="is-leaf">类型</th>
               <th class="is-leaf">说明</th>
@@ -88,12 +94,17 @@
                 <el-input size="mini" v-model="item.name" maxlength="50" placeholder="请输入名称"></el-input>
               </td>
               <td>
-                <el-select size="mini" class="form-input" v-model="item.isRequired" clearable>
+                <el-select size="mini" class="" v-model="item.requestType" clearable style="width:120px;">
+                  <el-option :label="item.name" :key="index" v-for="(item, index) in requireTypeArray" :value="item.name"></el-option>
+                </el-select>
+              </td>
+              <td>
+                <el-select size="mini" class="" v-model="item.isRequired" clearable style="width:120px;">
                   <el-option :label="item.label" :key="index" v-for="(item, index) in isRequiredArray" :value="item.value"></el-option>
                 </el-select>
               </td>
               <td>
-                <el-select size="mini" class="form-input" v-model="item.type" clearable>
+                <el-select size="mini" class="" v-model="item.type" clearable style="width:120px;">
                   <el-option :label="item.label" :key="index" v-for="(item, index) in dataTypeArray" :value="item.value"></el-option>
                 </el-select>
               </td>
@@ -132,7 +143,7 @@
                 <el-input size="mini" v-model="item.name"  maxlength="50"  placeholder="请输入名称"></el-input>
               </td>
               <td>
-                <el-select size="mini" class="form-input" v-model="item.type">
+                <el-select size="mini" class="form-input" v-model="item.type" style="width: 100%;">
                   <el-option :label="item.label" :key="index" v-for="(item, index) in dataTypeArray" :value="item.value"></el-option>
                 </el-select>
               </td>
@@ -264,7 +275,7 @@
           <el-button size="mini" class="operateBtn" @click="addDemo"><i class="iconfont icon-xinjianshili_huaban_huaban"></i> 新建示例</el-button>
         </p>
         <el-table :data="form4.exampleCallList" border>
-          <el-table-column label="序号" type="index" ></el-table-column>
+          <el-table-column label="序号" type="index" width="50"></el-table-column>
           <el-table-column label="标题" prop="title" ></el-table-column>
           <el-table-column label="语言" prop="language" >
           </el-table-column>
@@ -295,16 +306,10 @@
       </div>
     </el-form>
 
-    <div class="btn-group">
-      <el-button type="primary" size="mini" @click="save" >保存</el-button>
-      <el-button type="primary" size="mini" @click="submit" v-if="tabNum == 5">提交</el-button>
-      <el-button type="primary" size="mini" @click="nextStep" v-if="tabNum < 5">下一步</el-button>
-      <el-button size="mini" @click="preStep" v-if="tabNum > 1">返回上一步</el-button>
-      <el-button size="mini" v-if="tabNum == 1" @click="back">取消</el-button>
-    </div>
+   
     <el-dialog title="示例" :visible="showDemo" v-if="showDemo"  :append-to-body="true" @close="cancel" width="830px">
       <div >
-        <el-form :model="demoForm" ref="demoForm" :rules="demoRules" label-position="left" label-width="94px">
+        <el-form :model="demoForm" ref="demoForm" :rules="demoRules" label-position="left" label-width="96px">
           <el-form-item label="标题：" class="text-right" prop="title">
             <el-input size="mini" v-model="demoForm.title" class="form-input" maxlength="20" placeholder="请输入标题"></el-input>
           </el-form-item>
@@ -359,7 +364,7 @@
       <div class="basic-list">
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.codeExt" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -369,6 +374,15 @@
     </el-dialog>
     <a id="hrefToExportTable" style="postion: absolute;left: -10px;top: -10px;width: 0px;height: 0px;"></a>
   </div>
+   <div class="btn-group">
+      <el-button type="primary" size="mini" @click="save" >保存</el-button>
+      <el-button type="primary" size="mini" @click="submit" v-if="tabNum == 5">提交</el-button>
+      <el-button type="primary" size="mini" @click="nextStep" v-if="tabNum < 5">下一步</el-button>
+      <el-button size="mini" @click="preStep" v-if="tabNum > 1">返回上一步</el-button>
+      <el-button size="mini" v-if="tabNum == 1" @click="back">取消</el-button>
+    </div>
+
+
 </div>
 </template>
 
@@ -377,7 +391,7 @@
   //import table2excel from '@/libs/table2excel.js'
   import Blob from '@/libs/Blob.js'
   import { export_json_to_excel } from '@/libs/Export2Excel.js'
-  import {uploadFile, saveApiStep1, saveApiStep2, saveApiStep3, saveApiStep4, saveApiStep5, submitApi, getApiDetail, getApiTypeArray, getBasicTypeArray} from '@/api/api/index'
+  import {uploadFile, saveApiStep1, saveApiStep2, saveApiStep3, saveApiStep4, saveApiStep5, submitApi, getApiDetail, getApiTypeArray, getBasicTypeArray, getRequireTypeArray} from '@/api/api/index'
   export default {
     name: 'addApi',
     components: {
@@ -450,6 +464,7 @@
           thirdPartyApiId: '',//id
           picAttachmentId: '',//附件id
         },
+        requireTypeArray: [],
         form2: {
           thirdPartyApiId: '',
           apiUrl: '',
@@ -462,6 +477,7 @@
             {
               requestParametersId: '',
               name: '',
+              requestType:'',
               type: '',
               isRequired: '',
               description: ''
@@ -469,6 +485,7 @@
             {
               requestParametersId: '',
               name: '',
+              requestType:'',
               type: '',
               isRequired: '',
               description: ''
@@ -547,7 +564,7 @@
             {required: true, message: '请选择API类型', trigger: 'blur'}
           ],
           basicType: [
-            {required: true, message: '请选择基础对象', trigger: 'blur'}
+            {validator: this.checkBasicType, trigger: 'change'}
           ],
           apiShortDescription: [
             {required: true, message: '请输入API简介', trigger: 'blur'}
@@ -581,7 +598,7 @@
             {required: true, message: '请选择语言', trigger: 'change'}
           ],
           exampleCode: [
-            {required: true, message: '请输入示例代码', trigger: 'blur'}
+            {required: true, message: '请输入示例代码', trigger: 'change'}
           ],
         },
         rules5: {
@@ -610,6 +627,11 @@
         })
         getBasicTypeArray().then(resp => {
           this.basicTypeArray = resp.data
+        })
+        getRequireTypeArray({
+          dicCode: '10000001'
+        }).then( resp => {
+          this.requireTypeArray = resp.data
         })
       },
       changeApiTypeList() {
@@ -868,9 +890,9 @@
         } else if(form == 'form2') {
           this.form2.requestParametersList.forEach(v => {
             if (result !== 'requestIsEmpty') {
-              if (!v.name && !v.type && !v.isRequired && !v.description) {
+              if (!v.name && !v.type && !v.isRequired && !v.description && !v.requestType) {
                 result = 'requestAllEmpty'
-              } else if (!v.name || !v.type || !v.isRequired || !v.description) {
+              } else if (!v.name || !v.type || !v.isRequired || !v.description || !v.requestType) {
                 result = 'requestIsEmpty'
               }
             }
@@ -927,7 +949,7 @@
         let param = {}
         let data = {}
         switch(type) {
-          case 'param': data = this.form2.requestParametersList; param = {requestParametersId: '',name: '',description: '',type: '', isRequired: ''}; break;
+          case 'param': data = this.form2.requestParametersList; param = {requestParametersId: '',name: '',description: '',type: '', isRequired: '',requestType: ''}; break;
           case 'back': data = this.form2.responseParametersList; param = {responseParametersId: '',name: '',description: '',type: ''}; break;
           case 'sys': data = this.form3.sysError; param = {code: '',description: '',type: '1'}; break;
           case 'service': data = this.form3.serviceError; param = {code: '',description: '',type: '2'}; break;
@@ -955,6 +977,14 @@
         this.$refs.editor.getContent()
       },
       getContent(content) {
+        let str = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "</head>\n" + "<body>\n" + "\n" + "</body>\n" + "</html>"
+        if(content == str) {
+          this.$message({
+            type: 'error',
+            message: '示例代码不能为空'
+          })
+          return false
+        }
         this.demoForm.exampleCode = content
         this.$refs.demoForm.validate((valid) => {
           if (valid) {
@@ -1003,9 +1033,18 @@
       exportExcel (form, key, fileName) {　　　
         let tHeader = []
         let filterVal = []
+        let formCopyExcel = JSON.parse(JSON.stringify(this[form][key]))
         if (form == 'form2' && key == 'requestParametersList') {
-          tHeader = ['名称', '必填', '类型', '说明']; //将对应的属性名转换成中文 
-          filterVal = ['name', 'isRequired', 'type', 'description'];//table表格中对应的属性名　　
+          //转换是否
+          formCopyExcel.forEach( v => {
+            if(v.isRequired == '1') {
+              v.isRequired = '是'
+            } else  if(v.isRequired == '0') {
+               v.isRequired = '否'
+            }
+          })
+          tHeader = ['名称', '请求类型', '必填', '类型', '说明']; //将对应的属性名转换成中文 
+          filterVal = ['name', 'requestType', 'isRequired', 'type', 'description'];//table表格中对应的属性名　　
         } else if (form == 'form2' && key == 'responseParametersList'){
           tHeader = ['名称', '类型', '说明']; //将对应的属性名转换成中文 
           filterVal = ['name', 'type', 'description'];//table表格中对应的属性名　　
@@ -1014,7 +1053,7 @@
           filterVal = ['code', 'description'];//table表格中对应的属性名　
         }
         　　　 　　　 
-          const list = this[form][key]
+          const list = formCopyExcel
           const data = this.formatJson(filterVal, list)　　　　　　　 
           export_json_to_excel(tHeader, data, fileName)　　　　　 
       },
@@ -1100,6 +1139,15 @@
         let inputDOM = this.$refs.inputer;
         // 通过DOM取文件数据
         this.file = event.currentTarget.files[0];
+        //判断文件类型
+        let fileType = this.file.name.substring(this.file.name.lastIndexOf('.') + 1)
+        if (fileType != 'xls' && fileType != 'xlsx') {
+          this.$message({
+            type: 'warning',
+            message: '文件格式不正确'
+          })
+          return false
+        }
         var rABS = false; //是否将文件读取为二进制字符串
         var f = this.file;
         var reader = new FileReader();
@@ -1149,10 +1197,82 @@
           reader.readAsBinaryString(f);
         }
       },
+     checkEmpty(data) {
+        let result = false
+        if (data == '' || data == null || data == undefined) {
+          result = true
+        }
+         return result
+      },
       resetParam(data) {
+        //校验文件是否为空
+        if (data.length < 1) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，导入数据不可为空'
+          })
+          return false
+        }
+        //校验字段是否为空
+        let size = 0
+        let emptyArray = []
+        let errorArray = []
+        for (let i = 0, len = data.length; i < len; i++) {
+          let emptyStr = '第' + (i + 1) +'行'
+          let emptyArr = []
+          //非空
+          if (this.checkEmpty(data[i]['名称'])) {
+            size += 1
+            emptyArr.push('名称')
+          }
+          if (this.checkEmpty(data[i]['请求类型'])) {
+            size += 1
+            emptyArr.push('请求类型')
+          }
+          if (this.checkEmpty(data[i]['必填'])) {
+            size += 1
+            emptyArr.push('必填')
+          }
+          if (this.checkEmpty(data[i]['类型'])) {
+            size += 1
+            emptyArr.push('类型')
+          }
+          if (this.checkEmpty(data[i]['说明'])) {
+            size += 1
+            emptyArr.push('说明')
+          }
+          //长度
+         if ((data[i]['名称'] && data[i]['名称'].length > 50) || (data[i]['说明'] && data[i]['说明'].length > 200)) {
+            errorArray.push(i + 1)
+          }
+          if (size > 3) {
+            emptyArray = ['必填字段']
+            break
+          } else if (emptyArr.length > 0){
+            emptyStr += emptyArr.join('、')
+            emptyArray.push(emptyStr)
+          }
+        }
+        if (size > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，' + emptyArray.join() + '不可为空'
+          })
+          return false
+        }
+        //校验字段是否超长
+        if (errorArray.length > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，第' + errorArray.join() + '行数据格式错误，字符超过限制'
+          })
+          return false
+        }
+        //导入数据
         this.form2.requestParametersList = data.map((v) => {
           return {
             name: v['名称'],
+            requestType: v['请求类型'],
             isRequired: v['必填'],
             type: v['类型'],
             description: v['说明']
@@ -1160,7 +1280,63 @@
         })
         this.$refs.paramFile.value = ''
       },
-      resetBack(data) {
+      resetBack(data) {//返回参数
+        //校验文件是否为空
+        if (data.length < 1) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，导入数据不可为空'
+          })
+          return false
+        }
+        //校验字段是否为空
+        let size = 0
+        let emptyArray = []
+        let errorArray = []
+        for (let i = 0, len = data.length; i < len; i++) {
+          let emptyStr = '第' + (i + 1) +'行'
+          let emptyArr = []
+          //非空
+          if (this.checkEmpty(data[i]['名称'])) {
+            size += 1
+            emptyArr.push('名称')
+          }
+          if (this.checkEmpty(data[i]['类型'])) {
+            size += 1
+            emptyArr.push('类型')
+          }
+          if (this.checkEmpty(data[i]['说明'])) {
+            size += 1
+            emptyArr.push('说明')
+          }
+          //长度
+          if ((data[i]['名称'] && data[i]['名称'].length > 50) || (data[i]['说明'] && data[i]['说明'].length > 200)) {
+            errorArray.push(i + 1)
+          }
+          if (size > 3) {
+            emptyArray = ['必填字段']
+            break
+          } else if (emptyArr.length > 0){
+            emptyStr += emptyArr.join('、')
+            emptyArray.push(emptyStr)
+          }
+        }
+        if (size > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，' + emptyArray.join() + '不可为空'
+          })
+          return false
+        }
+        //校验字段是否超长
+        if (errorArray.length > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，第' + errorArray.join() + '行数据格式错误，字符超过限制'
+          })
+          return false
+        }
+        //导入数据
         this.form2.responseParametersList = data.map((v) => {
           return {
             name: v['名称'],
@@ -1170,7 +1346,59 @@
         })
         this.$refs.backFile.value = ''
       },
-      resetSys(data) {
+      resetSys(data) {//系统及code
+        //校验文件是否为空
+        if (data.length < 1) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，导入数据不可为空'
+          })
+          return false
+        }
+        //校验字段是否为空
+        let size = 0
+        let emptyArray = []
+        let errorArray = []
+        for (let i = 0, len = data.length; i < len; i++) {
+          let emptyStr = '第' + (i + 1) +'行'
+          let emptyArr = []
+          //非空
+          if (this.checkEmpty(data[i]['返回码'])) {
+            size += 1
+            emptyArr.push('返回码')
+          }
+          if (this.checkEmpty(data[i]['说明'])) {
+            size += 1
+            emptyArr.push('说明')
+          }
+          //长度
+          if ((data[i]['返回码'] && data[i]['返回码'].length > 10) || (data[i]['说明'] && data[i]['说明'].length > 50)) {
+            errorArray.push(i + 1)
+          }
+          if (size > 3) {
+            emptyArray = ['必填字段']
+            break
+          } else if (emptyArr.length > 0){
+            emptyStr += emptyArr.join('、')
+            emptyArray.push(emptyStr)
+          }
+        }
+        if (size > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，' + emptyArray.join() + '不可为空'
+          })
+          return false
+        }
+        //校验字段是否超长
+        if (errorArray.length > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，第' + errorArray.join() + '行数据格式错误，字符超过限制'
+          })
+          return false
+        }
+        //导入数据
         this.form3.sysError = data.map((v) => {
           return {
             code: v['返回码'],
@@ -1180,7 +1408,59 @@
         })
         this.$refs.sysFile.value = ''
       },
-      resetService(data) {
+      resetService(data) {//服务级code
+        //校验文件是否为空
+        if (data.length < 1) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，导入数据不可为空'
+          })
+          return false
+        }
+        //校验字段是否为空
+        let size = 0
+        let emptyArray = []
+        let errorArray = []
+        for (let i = 0, len = data.length; i < len; i++) {
+          let emptyStr = '第' + (i + 1) +'行'
+          let emptyArr = []
+          //非空
+          if (this.checkEmpty(data[i]['返回码'])) {
+            size += 1
+            emptyArr.push('返回码')
+          }
+          if (this.checkEmpty(data[i]['说明'])) {
+            size += 1
+            emptyArr.push('说明')
+          }
+          //长度
+          if ((data[i]['返回码'] && data[i]['返回码'].length > 10) || (data[i]['说明'] && data[i]['说明'].length > 50)) {
+            errorArray.push(i + 1)
+          }
+          if (size > 3) {
+            emptyArray = ['必填字段']
+            break
+          } else if (emptyArr.length > 0){
+            emptyStr += emptyArr.join('、')
+            emptyArray.push(emptyStr)
+          }
+        }
+        if (size > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，' + emptyArray.join() + '不可为空'
+          })
+          return false
+        }
+        //校验字段是否超长
+        if (errorArray.length > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，第' + errorArray.join() + '行数据格式错误，字符超过限制'
+          })
+          return false
+        }
+        //导入数据
         this.form3.serviceError = data.map((v) => {
            return {
             code: v['返回码'],
@@ -1191,6 +1471,58 @@
         this.$refs.serviceFile.value = ''
       },
       resetSuccess(data) {
+        //校验文件是否为空
+        if (data.length < 1) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，导入数据不可为空'
+          })
+          return false
+        }
+        //校验字段是否为空
+        let size = 0
+        let emptyArray = []
+        let errorArray = []
+        for (let i = 0, len = data.length; i < len; i++) {
+          let emptyStr = '第' + (i + 1) +'行'
+          let emptyArr = []
+          //非空
+          if (this.checkEmpty(data[i]['返回码'])) {
+            size += 1
+            emptyArr.push('返回码')
+          }
+          if (this.checkEmpty(data[i]['说明'])) {
+            size += 1
+            emptyArr.push('说明')
+          }
+          //长度
+          if ((data[i]['返回码'] && data[i]['返回码'].length > 10) || (data[i]['说明'] && data[i]['说明'].length > 50)) {
+            errorArray.push(i + 1)
+          }
+          if (size > 3) {
+            emptyArray = ['必填字段']
+            break
+          } else if (emptyArr.length > 0){
+            emptyStr += emptyArr.join('、')
+            emptyArray.push(emptyStr)
+          }
+        }
+        if (size > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，' + emptyArray.join() + '不可为空'
+          })
+          return false
+        }
+        //校验字段是否超长
+        if (errorArray.length > 0) {
+          this.$message({
+            type: 'warning',
+            message: '导入失败，第' + errorArray.join() + '行数据格式错误，字符超过限制'
+          })
+          return false
+        }
+        //导入数据
         this.form3.successCode = data.map((v) => {
           return {
             code: v['返回码'],
@@ -1226,14 +1558,22 @@
         this.showBasic = false
         this.chooseTypeArray = []
         this.basicTypeArray.forEach(v => {
-          if (this.basicTypeList.indexOf(v.codeExt) > -1) {
+          if (this.basicTypeList.indexOf(v.type) > -1) {
             this.chooseTypeArray.push(v)
           }
         })
       },
       closeBasic(data, index) {
         this.chooseTypeArray.splice(index, 1)
-        this.basicTypeList.splice(this.basicTypeList.indexOf(data.codeExt), 1)
+        this.basicTypeList.splice(this.basicTypeList.indexOf(data.type), 1)
+        this.form.basicType = this.basicTypeList.join()
+      },
+      checkBasicType(rule, value, callback) {
+        if(this.basicTypeList.length > 0) {
+          callback()
+        } else {
+          callback(new Error ('请选择对象类型'))
+        }
       }
     }
   }

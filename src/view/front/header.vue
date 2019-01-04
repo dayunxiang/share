@@ -29,7 +29,8 @@
 
     <div class="nav-container">
       <div class="nav-bar">
-        <span class="nav" @click="goIndex" >
+        <!--  -->
+        <span class="nav" @click="goIndex">
           <span :class="tabNum == 1 ? 'active' : ''">首页</span>
         </span>
         <span class="nav" @click="goApi" >
@@ -46,12 +47,13 @@
         </span>
 
         <span class="nav-search" >
-          <el-input  size="small" suffix-icon="el-icon-search"> 
+          <el-input  size="small" v-model="searchName"> 
             <el-select v-model="searchType" slot="prepend" style="width:80px;" size="small">
               <el-option label="API" value="1"></el-option>
               <el-option label="数据" value="2"></el-option>
               <el-option label="文档" value="3"></el-option>
             </el-select>
+             <i slot="suffix" class="el-icon-search header-search"  @click="selectData"></i>
           </el-input>
         </span>
       </div>
@@ -60,7 +62,7 @@
 </template>
 
 <script>
-  import { getUser, getToken, removeToken } from '@/utils/auth'
+  import { getUser, getToken, removeToken, removeLoginFlag } from '@/utils/auth'
   import {userLogout} from '@/api/index/index'
   import {getMessageCount} from '@/api/message/index'
   import store from '../../store/index'
@@ -96,6 +98,9 @@
       },
       messageCount() {
         return this.$store.state.app.msgCount
+      },
+      tabCount() {
+        return this.$store.state.app.tabCount
       }
     },
     watch: {
@@ -104,6 +109,9 @@
           this.userName = val
           this.isLogin = true
         }
+      },
+      tabCount(val) {
+        this.tabNum = val
       }
     },
     data() {
@@ -119,21 +127,25 @@
         logoUrl: require('@/assets/images/logo.png'),
         messageUrl: require('@/assets/images/api-message.png'),
         messageUrl2: require('@/assets/images/api-message2.png'),
+        searchName: '',//查询条件
       }
     },
     methods: {
       goIndex() {
         this.tabNum = 1
+        this.$store.state.app.tabCount = 1
         sessionStorage.setItem('tabNum', 1)
         this.$router.push({
           path: '/index'
         })
+        this.$store.state.app.refreshIndex = true
       },
       goApi() {
         this.tabNum = 2
+        this.$store.state.app.tabCount = 2
         sessionStorage.setItem('tabNum', 2)
         this.$router.push({
-          path: '/api'
+          path: '/api'///
         })
       },
       goCenter() {
@@ -143,6 +155,7 @@
       },
       goData() {
         this.tabNum = 3
+         this.$store.state.app.tabCount = 3
         sessionStorage.setItem('tabNum', 3)
         this.$router.push({
           path: '/data'
@@ -150,6 +163,7 @@
       },
       goDoc() {
         this.tabNum = 4
+         this.$store.state.app.tabCount = 4
         sessionStorage.setItem('tabNum', 4)
         this.$router.push({
           path: '/doc'
@@ -189,12 +203,17 @@
         }).then(() => {
           userLogout().then((resp) => {
             removeToken()
-            // sessionStorage.removeItem('menu')
-            // sessionStorage.removeItem('isFirst')
-            // this.$store.state.user.menus = []
-            this.$router.push({
-              path: '/login'
-            })
+            removeLoginFlag()
+            sessionStorage.removeItem('menu')
+            sessionStorage.removeItem('isFirst')
+            this.$store.state.user.menus = []
+            if (resp.data) {
+              window.location.href = resp.data
+            } else {
+              this.$router.push({
+                path: '/login'
+              })
+            }
           })
         }).catch((error) => {
           console.log(error)
@@ -210,6 +229,30 @@
           store.state.app.msgCount = res.data
           //this.messageCount = res.data
         })
+      },
+      selectData() {
+        if (this.searchType == 1) {//api
+          this.tabNum = 2
+          sessionStorage.setItem('tabNum', 2)
+          this.$router.push({
+            name: 'api'
+          })
+          this.$store.state.app.searchApiName = this.searchName
+        } else if (this.searchType == 2) {//data
+          this.tabNum = 3
+          sessionStorage.setItem('tabNum', 3)
+          this.$router.push({
+            name: 'data'
+          })
+          this.$store.state.app.searchDataName = this.searchName
+        } else {//doc
+          this.tabNum = 3
+          sessionStorage.setItem('tabNum', 4)
+          this.$router.push({
+            name: 'doc'
+          })
+          this.$store.state.app.searchDocName = this.searchName
+        }
       }
       
     }

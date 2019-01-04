@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="page-title">我的收藏</div>
-    <div class="main-container">
+    <div class="main-container pt-twoline">
       <div class="mar-20">
       <el-row class="searchBar">
         <div>
           <el-row :gutter="15">
             <el-col :span="8" >
-              <span class="form-label">名称</span>
+              <span class="form-label">文档名称</span>
               <el-input v-model="form.name" size="mini" class="form-input" placeholder="请输入名称"></el-input>
             </el-col>
             <el-col :span="8" class="height-28" >
@@ -35,7 +35,7 @@
       <el-table :data="list"   border >
         <!-- <el-table-column fixed type="selection" width="40"></el-table-column> -->
         <el-table-column fixed type="index" width="50" label="序号"></el-table-column>
-        <el-table-column label="名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
+        <el-table-column label="文档名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
         <el-table-column label="作者" prop="author"  width="140"></el-table-column>  
         <el-table-column label="收藏时间" prop="collectionTime"  width="180"></el-table-column>
         <el-table-column label="收藏量" prop="collectionTimes"  width="180"></el-table-column>
@@ -109,7 +109,7 @@
         page: {
           page: 1,
           size: 10
-        },
+        }
       }
     },
     computed: {

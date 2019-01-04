@@ -38,7 +38,12 @@
           <p class="fl"><span class="color666">下载次数：</span>{{detailData.downloadTimes}}<span class="color666">次</span></p>
         </div>
         <div class="pd20">
-          <span>产品单价</span><span class="red-font"> {{detailData.price}} </span><span>水利币/次</span>
+          <template v-if="detailData.costFee != '0.00'">
+            <span>产品单价</span><span class="red-font"> {{detailData.price}} </span><span>水利币/次</span>
+          </template>
+          <template v-if="detailData.costFee == '0.00'">
+            <span>产品单价</span><span class="status-success"> 免费 </span>
+          </template>
         </div>
       </div>
       <el-table border :data="list">
@@ -69,7 +74,12 @@
           <p class="fl"><span class="color666">下载次数：</span>{{detailData.downloadTimes}}<span class="color666">次</span></p>
         </div>
         <div class="pd20">
-          <span>产品单价</span><span class="red-font"> {{detailData.price}} </span><span>水利币/次</span>
+          <template v-if="detailData.costFee != '0.00'">
+            <span>产品单价</span><span class="red-font"> {{detailData.costFee}} </span><span>水利币/次</span>
+          </template>
+          <template v-if="detailData.costFee == '0.00'">
+            <span>产品单价</span><span class="status-success"> 免费 </span>
+          </template>
         </div>
       </div>
       <el-table border :data="list">
@@ -184,6 +194,9 @@
   }
   div, p,span {
     color: #333;
+  }
+  .status-success {
+    color: #13b979;
   }
 </style>
 

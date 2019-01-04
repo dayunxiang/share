@@ -95,9 +95,12 @@
                 })
                 setToken(obj.token)
                 setUser(obj.user)
-                this.isRouterAlive = false;
-                this.$nextTick(function(){
-                  this.isRouterAlive = true;
+                // this.isRouterAlive = false;
+                // this.$nextTick(function(){
+                //   this.isRouterAlive = true;
+                // })
+                this.$router.push({
+                  name: this.$store.state.app.lastLogin.name
                 })
               } else {
                 this.$message({

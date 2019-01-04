@@ -47,8 +47,9 @@
               <el-button class="operateBtn" size="mini" v-if="tabType == 1" @click="changeStatus(3, '确认关闭？', '关闭成功','请选择订单后操作关闭订单')"><i class="iconfont icon-guanbidingdan_huaban"></i> 关闭</el-button>
               <el-button class="operateBtn" size="mini" v-if="tabType == 1" @click="changeStatus(1, '确认重启？', '重启成功','请选择已关闭订单后操作订单重启')"><i class="iconfont icon-zhongqidingdan_huaban"></i> 重启</el-button>
               <el-button class="operateBtn" size="mini" v-if="tabType == 2" @click="eval"><i class="iconfont icon-pingjia_huaban"></i> 评价</el-button>
-              <el-button class="operateBtn" size="mini" v-if="tabType == 2" @click="pay('renew')"><i class="el-icon-news size-14"></i> 续费</el-button>
-              <el-button class="operateBtn" size="mini" v-if="tabType == 2 ||  tabType == 1" @click="changeStatus(4, '确认删除？', '删除成功','请选择订单后操作删除')"><i class="iconfont icon-shanchu_huaban"></i> 删除</el-button> 
+              <el-button class="operateBtn" size="mini" v-if="tabType == 2" @click="pay('renew')"><i class="iconfont icon-xufei-huanban size-14"></i> 续费</el-button>
+              <!-- v-if="tabType == 2 ||  tabType == 1" -->
+              <el-button class="operateBtn" size="mini"  @click="changeStatus(4, '确认删除？', '删除成功','请选择订单后操作删除')"><i class="iconfont icon-shanchu_huaban"></i> 删除</el-button> 
             </div>
         </div>
       </div>
@@ -94,7 +95,7 @@
                     <el-popover
                       placement="left"
                       width="200"
-                      trigger="hover">
+                      trigger="click">
                       <div>{{item.flag}}</div>
                       <!-- <span class="api-flag"  > -->
                         <img slot="reference" class="mark-fontimg" :src="markUrl" v-if="item.apiMainType == '基础非管理员创建接口' && item.flag.length > 0"/>
@@ -108,9 +109,10 @@
               </el-row>
               <el-row :style="{textAlign:'center'}" :class="['api-list-body']">
                <el-col :span="1" >
-                 <el-checkbox  v-model="item.isselected" @change="handleListChange(item,$event)" :disabled="item.apiBuyStatus != '待付款' && tabType == 0"></el-checkbox>
+                 <el-checkbox  v-model="item.isselected" @change="handleListChange(item,$event)"></el-checkbox>
+                 <!-- :disabled="item.apiBuyStatus != '待付款' && tabType == 0" -->
                </el-col>
-               <el-col :span="8" >
+               <el-col :span="8" class="left-name">
                 {{item.apiName}}
                </el-col>
                <el-col :span="5" >
@@ -129,9 +131,19 @@
                  <span v-if="!item.apiBuyStatus">-</span>
                </el-col>
                <el-col :span="4" :class="['crud-btns','split-before']">
-                 <a class="operCell"  @click="detail(item)">接口<span class="btn-space"></span></a>
-                 <a class="operCell" v-if="item.apiBuyStatus != '待付款' && item.apiBuyStatus != '已关闭'" @click="statistics(item)">统计<span class="btn-space"></span></a>
-                 <a class="operCell" @click="testApi(item)">测试</a><template v-if="item.apiMainType == '基础非管理员创建接口'"><span class="btn-space"></span><a class="operCell" @click="addNameApi(item)">标注</a></template>
+                 
+                  <a class="operCell" v-if="item.apiBuyStatus != '待付款' && item.apiBuyStatus != '已关闭'" @click="statistics(item)">统计<span class="btn-space"></span></a>
+
+                  <a class="operCell" v-if="item.apiMainType != '业务接口'" @click="testApi(item)">测试<span class="btn-space"></span></a>
+
+                  <template v-if="item.apiMainType == '基础非管理员创建接口'">
+                    <a class="operCell" @click="addNameApi(item)">标注<span class="btn-space"></span></a>
+                  </template>
+
+                  <template v-if="item.apiMainType != '基础非管理员创建接口' && item.apiBuyStatus == '已付款'">
+                    <a class="operCell" @click="warningApi(item)">预警<span class="btn-space"></span></a>
+                  </template>
+                  <a class="operCell"  @click="detail(item)">接口</a>
                </el-col>
               </el-row>
             <el-row  :class="['terminated-warper']" v-if="item.apiStatus == '已停用'"></el-row>
@@ -166,7 +178,7 @@
                 <span class="title">{{item.apiName}}</span>
                 <span class="count">
                   购买数量：
-                  <input type="text" class="small-input" v-model="item.apiBookedTimes" @keyup="changePrice(item, index)" />
+                  <input type="text" class="small-input" v-model="item.apiBookedTimes" @input="changePrice( $event, item, index)" />
                   次
                 </span>
                 <span class="price"> 
@@ -244,12 +256,34 @@
         </div>
       </el-form>
     </el-dialog>
+    <el-dialog title="预警设置" width="500px" :visible="warnVisible" :append-to-body="true" @close="cancel">
+      <el-form label-width="120px" @submit.native.prevent :rules="warnRule" :model="warnForm" ref="warnForm">
+        <el-form-item label="是否开启：" prop="ifOpen">
+          <el-radio-group v-model="warnForm.ifOpen">
+            <el-radio label="1">是</el-radio>
+            <el-radio label="0">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="预警次数：" prop="warnTimes">
+          <el-input-number v-model="warnForm.warnTimes" :precision="0" :step="1" size="small"></el-input-number>
+        </el-form-item>
+        <el-form-item label="预警手机号：" prop="mobile">
+          <el-select v-model="warnForm.mobile" size="mini" class="form-input" placeholder="请选择预警手机号">
+            <el-option v-for="(item, index) in mobileArr" :key="'item'+index" :label="item" :value="item"></el-option>
+          </el-select>
+        </el-form-item>
+        <div class="rightPage">
+          <el-button type="primary" size="mini" @click="saveWarn">确定</el-button>
+          <el-button size="mini" @click="cancel">取消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-  import {getDataList, changeApiStatus, payApi, saveEval, getEvalDetail, mark} from '@/api/myapi/index';
+  import {getDataList, changeApiStatus, payApi, saveEval, getEvalDetail, mark, getBindTel, setBindTel, getBindTelDetail} from '@/api/myapi/index';
   export default {
     components: {
     },
@@ -264,6 +298,9 @@
     },
     data() {
       return {
+        mobileArr: [],
+        isWarn: false,
+        warnVisible: false,//预警弹框
         markVisible: false,//标注标识
         createTime: [],
         showPay: false,
@@ -292,8 +329,22 @@
         markForm: {
           markContent: ''
         },
+        warnForm: {
+          ifOpen: '0',
+          warnTimes: 1,
+          mobile: ''
+        },
         markRule: {
           markContent: [{ validator: this.validatePass }]
+        },
+        warnRule: {
+          ifOpen: [{ required: true, message: '请选择', trigger: 'change' }],
+          warnTimes: [
+            { required: true, message: '请输入预警次数', trigger: 'blur' }
+          ],
+          mobile: [
+            { required: true, message: '请选择预警手机号', trigger: 'change' }
+          ]
         },
         choosePayList: [],
         page: {
@@ -350,10 +401,11 @@
       },
       reset() {
         this.form = {
-          tabFlag: 0,
+          tabFlag: this.tabType,
           selectParam: '',
           apiMainType: ''
         }
+        this.createTime = []
       },
       pay(type) {
         if (this.collection.length == 0) {
@@ -362,6 +414,26 @@
             message: type == 'pay' ? '请选择订单后操作付款' : '请选择订单后操作续费'
           })
         } else {
+          let result = false
+          this.collection.forEach(v => {
+            if (v.apiBuyStatus !== '待付款') {
+              result = true
+            }
+          })
+       
+          if (result && type == 'pay') {
+
+            this.$message({
+              type: 'warning',
+              message: '只有待付款的API才能进行付款操作'
+            })
+            return false
+          }
+          
+          this.checkAllApi = true
+          this.isChcekAllPrice = false
+          this.checkAllPrice(true)
+          
           this.showPay = true
           this.payType = type
           this.payTitle = this.payType == 'pay' ? '付款' : '续费'
@@ -375,16 +447,20 @@
           })
           return false
         }
+
         let param = {
           myApiPayDtos: []
         }
+        
         this.choosePayList.forEach(v => {
+          
           let data = {
             id: v.id,
-            apiBookedTimes: v.apiBookedTimes
+            apiBookedTimes: isNaN(v.apiBookedTimes) ? 0 : v.apiBookedTimes
           }
           param.myApiPayDtos.push(data)
         })
+       
         payApi(param).then(resp => {
           if (resp.code == 200) {
             this.$message({
@@ -445,6 +521,7 @@
         this.showEval = false
         this.showEvalDetail = false
         this.markVisible = false
+        this.warnVisible = false
         this.collection.forEach( v => {
           v.productReview = ''
         })
@@ -459,17 +536,16 @@
         console.log(index, row);
       },
       handleCheckAllChange(value) {
-        this.tableData.forEach((val)=>{
-          if (this.tabType == 0) {
-            if (val.apiBuyStatus == '待付款') {
-              val.isselected = value;
-            }
-          } else {
-            val.isselected = value;
-          }
+        this.tableData.forEach((val)=>{ 
+          val.isselected = value
         })
         
         if (value) {
+          //计算价格
+          this.tableData.forEach(item => {
+            item.price = item.payStandard * item.apiBookedTimes
+          })
+          //获取拷贝数据
           if (this.tabType == 0) {
             this.collection = this.tableData.filter(v => {
               return v.isselected
@@ -490,11 +566,46 @@
           item.price = item.payStandard * item.apiBookedTimes
           this.collection.push(item)   
         } else {
-          this.collection.splice(this.collection.indexOf(item), 1)        
+          let index = -1
+          this.collection.forEach((v, i) => {
+            if (v.id == item.id) {
+              index = i
+            }
+          })
+          this.collection.splice(index, 1)        
         }
       },
-      changePrice(item, index) {
-        item.price = Number((item.apiBookedTimes * item.payStandard).toFixed(2))
+      checkPay(value) {
+        value += ''
+
+        if(/[^\d]+/g.test(value)) {
+          value = value.replace(/[^\d]+/g,'')
+        }
+        return parseInt(value)
+      },
+      changePrice(e, item, index) {
+        item.apiBookedTimes = this.checkPay(e.target.value)
+        if(!item.apiBookedTimes) {
+          item.price = 0
+        } else {
+          item.price = parseFloat((item.apiBookedTimes * item.payStandard).toFixed(2))
+        }
+        let tag = false
+        let m = -1
+        
+        this.choosePayList.forEach((v, i) => {
+          if (v.id == item.id) {
+           tag = true
+           m = i
+           v.apiBookedTimes = item.apiBookedTimes
+          }
+        })
+        if(tag) {
+          this.choosePayList[m].price = item.price
+        } else {
+          this.collection[index].price = item.price
+        }
+        
         let data = JSON.parse(JSON.stringify(item))
         this.$nextTick(() => {
           this.collection.splice(index, 1, data)
@@ -503,16 +614,22 @@
           let total = 0
           //console.log(this.choosePayList)
           this.choosePayList.forEach(v => {
-            total += parseInt(v.price)
+            total += parseFloat(v.price)
           })
-          this.totalPrice = total
+          this.totalPrice = total.toFixed(2)
         }
       },
       choosePay(item, e) {
         if (e) {
           this.choosePayList.push(item)
         } else {
-          this.choosePayList.splice(this.choosePayList.indexOf(item), 1)
+          let index = -1
+          this.choosePayList.forEach((v, i) => {
+            if (v.id == item.id) {
+              index = i
+            }
+          })
+          this.choosePayList.splice(index, 1)
         }
         if (this.choosePayList.length == this.collection.length) {
           this.checkAllApi = true
@@ -526,7 +643,7 @@
         }
         let total = 0
         this.choosePayList.forEach(v => {
-          total += parseInt(v.price)
+          total += parseFloat(v.price)
         })
         this.totalPrice = total
       },
@@ -567,7 +684,9 @@
           if (status == 4 && deleteFlag) {
             message = 'API剩余使用次数不为0，是否确认删除？'
           }
-          this.$confirm(message, '确认').then(() => {
+          this.$confirm(message, '确认', {
+            cancelButtonClass: 'btn-custom-cancel'
+          }).then(() => {
             changeApiStatus(param).then((resp) => {
               if (resp.code == 200) {
                 this.$message({
@@ -604,18 +723,21 @@
         }, 1)
       },
       checkAllPrice(e) {
+        
         this.collection.forEach((v) => {
           v.checked = e
+          v.price = parseFloat(v.price.toFixed(2))
         })
         this.choosePayList = JSON.parse(JSON.stringify(this.collection))
         if (e) {
           let total = 0
           this.choosePayList.forEach(v => {
-            total += parseInt(v.price)
+            total += parseFloat(v.price)
           })
-          this.totalPrice = total
+          this.totalPrice = total.toFixed(2)
         } else {
           this.totalPrice = 0
+          this.choosePayList = []
         }
       },
       checkisIndeterminate(){
@@ -657,6 +779,7 @@
         })
       },
       detail(data) {
+        sessionStorage.setItem('tabNum', 2)
         if (data.apiMainType == '业务接口') {
           this.$router.push({
             name: 'apiDetail',
@@ -718,6 +841,48 @@
           }
         })
       },
+      //预警号码
+      warningApi(item) {
+        
+        if(this.$refs.warnForm != undefined) {
+          this.$refs.warnForm.resetFields()
+        }
+        this.warnVisible = true
+        this.warnForm.myApiId = item.id
+        getBindTelDetail(item.id).then(res => {
+          if(res.data.length > 0) {
+            this.warnForm = res.data[0]
+          }
+        })
+        
+        getBindTel().then(res => {
+          this.mobileArr = res.data
+        })
+      },
+      //保存预警手机号
+      saveWarn(){
+        this.$refs['warnForm'].validate((valid) => {
+          if(valid) {
+            setBindTel(this.warnForm).then(res => {
+              if(res.code == 200) {
+                this.warnVisible = false
+                this.$message({
+                  type: 'success',
+                  message: '预警设置成功'
+                })
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: res.message
+                })
+              }
+            })
+          }
+          
+        })
+        
+
+      },
 
       handleCurrentChange(page) {
         this.page.page = page
@@ -760,7 +925,7 @@
 
 <style scoped>
   .search-box .el-button--mini{
-      margin-left: 0;
+      margin-left: 6px;
       padding: inherit 10px;
   }
   .api-lists-header{
@@ -827,9 +992,10 @@
     position: relative;
   }
   .basic-fontimg {
+    width: 26px;
     position: absolute;
     top: 0;
-    right: -36px;
+    right: -46px;
   }
   .mark-fontimg {
     position: absolute;
@@ -838,6 +1004,10 @@
   }
   .mark-fontimg:hover {
     cursor: pointer;
+  }
+  .left-name {
+    text-align: left;
+    padding-left: 30px;
   }
 </style>
 

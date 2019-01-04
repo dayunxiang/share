@@ -141,6 +141,9 @@ body, html {
             line-height: 60px;
             cursor: pointer;
             color: #666;
+            .out-span:hover {
+                color: #ee3323;
+            }
             .message-outer {
                 cursor: pointer;
                 img {
@@ -160,10 +163,19 @@ body, html {
                 }
             }
             .puUser {
-                border-left: 1px solid #ccc;
-                border-right: 1px solid #ccc;
-                padding: 0 15px;
+                // border-left: 1px solid #ccc;
+                // border-right: 1px solid #ccc;
+                .username {
+                    padding: 0 15px;
+                }
                 margin: 0 20px;
+                .vertical-line {
+                    display: inline-block;
+                    width: 1px;
+                    background-color: #ccc;
+                    height: 12px;
+                    vertical-align: middle;
+                }
             }
         }
     }
@@ -183,7 +195,7 @@ body, html {
             height: 100%;
             .tags-inner-scroll-body{
                 position: absolute;
-                padding: 0 15px 0 10px;
+                padding: 0 15px 0 16px;
                 height: 30px;
                 overflow: visible;
                 white-space: nowrap;
@@ -204,11 +216,15 @@ body, html {
                     .close {
                         position: absolute;
                         right: 10px;
-                        color: #B5BDCB;
                         cursor: pointer;
                         font-size: 16px;
                         margin-top: -6px;
                         margin-top: -2px;
+                        i {
+                            font-size: 14px;
+                            color: #aaa;
+                            font-weight: 900;
+                        }
                     }
                     
                 }
@@ -232,7 +248,7 @@ body, html {
                     color: #fff;
                     //border: 1px solid #B5BDCB;
                     background: #B5BDCB;
-                    .close {
+                    .close i{
                         color: #fff;
                     }
                 }
@@ -240,10 +256,10 @@ body, html {
                     border-left: 12px solid #B5BDCB;
                 }
                 .shareTab {
-                    background-color: #F4F7F9;
+                    background-color: #e7eaecfc; //F4F7F9
                 }
                 .shareTab.active {
-                    background-color: #F4F7F9;
+                    background-color: #e7eaecfc;
                     color: #6A7483;
                 }
             }
@@ -272,13 +288,18 @@ body, html {
         background: #E8ECF0;
         .main-container {
             margin: 16px;
-            padding: 20px 30px 20px 30px;
+            padding: 4px 30px 20px 30px;
             background-color: #fff;
             .el-pagination {
                 margin: 30px 0;
                 //background: #f4f4f4;
                 button:disabled {
                     background: #f4f4f4;
+                    i {
+                        color: #aaa;
+                        font-size: 14px;
+                        font-weight: 900;
+                    }
                 }
                 .el-pager li {
                     //background: #f4f4f4;
@@ -329,11 +350,11 @@ body, html {
             .tab {
                 margin-left: -30px;
                 margin-right: -30px;
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid #ddd;
                 margin-bottom: 20px;
                 span {
                     display: inline-block;
-                    padding: 5px 20px;
+                    padding: 12px 20px;
                     cursor: pointer;
                     margin-bottom: -1px;
                 }
@@ -347,7 +368,7 @@ body, html {
                 width: 100%;
                 padding: 20px;
                 margin: 20px 0;
-                border: 1px solid #ccc;
+                border: 1px solid #ddd;
                 background: #fff;
                 position: relative;
                 .img-preview {
@@ -554,9 +575,10 @@ body, html {
 .el-dialog__header {
    padding: 10px 20px;
    background: #f3f3f3;
+
 }
 .el-dialog__headerbtn {
-    top: 15px;
+    top: 14px;
 }
 .hide{
     display: none;
@@ -589,7 +611,7 @@ body, html {
         border: 1px solid #ccc;
         background-color: #f4f6f8;
         .account-balance {
-            padding:  0 50px;
+            padding:  16px 50px;
             border-right: 1px solid #ddd;
             text-align: left;
             img {
@@ -689,10 +711,10 @@ body, html {
                 text-align: right;
                 margin-top: 25px;
                 .el-button {
-                    background-color: #fff;
-                    border: 1px solid #009dec;
+                    background-color: #fff !important;
+                    border: 1px solid #009dec !important;
                     border-radius: 0 ;
-                    color: #009dec;
+                    color: #009dec !important;
                     height: 34px;
                     line-height: 34px;
                     padding: 0 20px;
@@ -785,6 +807,10 @@ body, html {
 .status-disabled {
     color: #999;
 }
+.status-add {
+    color: #19d1f2;
+    text-decoration: underline; 
+}
 .status-blue {
     color: #009dec;
 }
@@ -813,7 +839,7 @@ text-color
     color:#e6a23c;
 }
 .text-danger{
-    color:#f56c6c;
+    color:#ee3323;
 }
 .text-info{
     color:#909399;
@@ -830,12 +856,12 @@ text-color
     padding: 10px 20px;
     .page-tab{
         //width: 100%;
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid #ddd;
         // margin-bottom: 20px;
         margin: 0 -30px 20px -30px;
         .tabs {
             display: inline-block;
-            padding: 5px 20px;
+            padding: 12px 20px;
             cursor: pointer;
             margin-bottom: -1px;
         }
@@ -1029,7 +1055,7 @@ text-color
     .data-wrap {
         background: #fff;
         margin-bottom: 16px;
-        padding: 16px;
+        padding: 20px;
     } 
     .data-container {
         width: 100%;
@@ -1187,7 +1213,7 @@ text-color
     }
     .title {
         width: 200px;
-        background: #0292DB;
+        background: #009dec;
         height: 40px;
         line-height: 40px;
         padding-left: 55px;
@@ -1207,12 +1233,19 @@ text-color
             cursor: pointer;
         }
     }
+    p.oper {
+        text-align: center;
+        height: 40px;
+        line-height: 40px;
+    }
     .dict-list {
         list-style: none;
         width: 200px;
         li {
             width: 200px;
             cursor: pointer;
+            height: 40px;
+            line-height: 40px;
             span {
                 height: 40px;
                 width: 140px;
@@ -1222,11 +1255,18 @@ text-color
                 padding-left: 25px;
                 border-bottom: 1px solid #ddd;
                 margin-left: 30px;
+                overflow: hidden;/*超出部分隐藏*/
+                white-space: nowrap;/*不换行*/
+                text-overflow:ellipsis;/*超出部分文字以...显示*/
                 small {
                     display: none;
                     float: right;
                     margin-right: 10px;
                     color: #009dec;
+                    i.el-icon-close {
+                        font-size: 14px;
+                        font-weight: 900;
+                    }
                 }
             }
             // span:hover {
@@ -1241,7 +1281,8 @@ text-color
             span {
                 color: #009dec;
                 margin-left: 27px;
-                small {
+                border: 1px solid #EEF9FF;
+                small{
                     display: inline-block;
                 }
             }

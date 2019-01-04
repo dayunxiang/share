@@ -9,7 +9,7 @@
         <span :class="tabNum == 4 ? 'active' : ''" @click="changeTab(4)">已关闭</span>
       </p>
       <div class="btn-box">
-        <el-button size="mini" class="operateBtn" @click="addOrder"><i class="iconfont icon-xinjiangongdan_huaban"></i> 新增</el-button>
+        <el-button size="mini" class="operateBtn" @click="addOrder"><i class="iconfont icon-xinjiangongdan_huaban"></i> 新建工单</el-button>
       </div>
       <el-table :data="list"  border >
         <el-table-column  fixed type="index" width="50" label="序号"></el-table-column>

@@ -26,6 +26,10 @@
           <span class="mb0">数据服务</span>
           <span class="mb0">文库服务</span>
         </div>
+        <div class="copy-font">
+          <span>Copyright&copy;2018江西省水投江河信息技术有限公司<span class="mr20"></span>赣ICP备17017295号-1&ensp;公安网备36010902000118</span>
+        </div>
+        
       </div>
       <div class=" ewm">
         <img :src="ewmUrl"/>
@@ -33,9 +37,9 @@
         <span>扫码关注微信公众号</span>
       </div>
     </div>
-    <div class="page-footer">
+   <!--  <div class="page-footer">
       <span>Copyright&copy;2018江西省水投江河信息技术有限公司<span class="mr20"></span>赣ICP备17017295号-1&ensp;公安网备36010902000118</span>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -51,7 +55,7 @@
     data() {
       return {
         logoUrl: require('@/assets/images/logo.png'),
-        ewmUrl: require('@/assets/images/ewm.png'),
+        ewmUrl: require('@/assets/images/ewm.jpeg'),
         phoneUrl: require('@/assets/images/phone.png'),
         emailUrl: require('@/assets/images/api-email.png'),
       }

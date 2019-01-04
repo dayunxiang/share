@@ -1,12 +1,16 @@
 <template>
   <div >
     <div class="page-title">账户信息</div>
-    <div class="main-container">
+    <div class="main-container pt-twoline-nomar">
       <div class="user-con">
-        <div class="img-con">
-         
-            <!-- <img :src="priceUrl"> -->
-          <img :src="'http://10.136.6.59:8080' + userInfo.photoNormal" :onerror="defaultUrl"/>
+        <div class="img-con" v-if="userInfo.photo.length == 0 && userInfo.isAdmin == '1'">
+          <img :src="avatorUrl" />
+        </div>
+        <div class="img-con" v-if="userInfo.photo.length == 0 && userInfo.isAdmin == '0'">
+          <img :src="avatorUrl2"/>
+        </div>
+        <div class="img-con" v-if="userInfo.photo.length > 0">
+          <img :src="userInfo.photo"/>
         </div>
         <div class="user-detail">
             <p>
@@ -44,13 +48,16 @@
   export default {
     components: {
     },
-    mounted() {
+    created() {
       this.userInfo = JSON.parse(getUser())
+      console.log(this.userInfo)
     },
     data() {
       return {
         userInfo: {},
-        defaultUrl: 'this.src="./static/images/logo.png"',
+        avatorUrl: require('@/assets/images/default-avator.jpg'),
+        avatorUrl2: require('@/assets/images/default-admin.jpg'),
+        // defaultUrl: 'this.src="./static/images/logo.png"',
         priceUrl: require('@/assets/images/price2.png')
       }
     },
@@ -58,9 +65,9 @@
      
     },
     methods: {
-      getDefault() {
-        return this.defaultUrl
-      }
+      // getDefault() {
+      //   return this.defaultUrl
+      // }
     }
   }
 </script>

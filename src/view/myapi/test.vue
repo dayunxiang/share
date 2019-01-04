@@ -1,7 +1,7 @@
 <template>
  <div>
     <div class="page-title">API测试</div>
-    <div class="main-container">
+    <div class="main-container pt-20">
       <p class="api-label">
         <label>接口名称：</label>
         <span>{{apiDetail.apiName}}</span>

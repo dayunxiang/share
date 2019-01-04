@@ -51,12 +51,13 @@
         </el-col>
       </el-row>
     </div>
-    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="375px">
-      <div >
-        <p style="margin-bottom: 20px;">
-          <label>申请金额：</label>
-          <el-input size="mini" v-model="applyCount" class="form-input" maxlength="20"></el-input>
-        </p> 
+    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="390px">
+      <div>
+        <label><span class="red">* </span>申请金额：</label>
+        <div class="form-input el-input el-input--mini">
+          <input type="text" v-model="applyCount" class="el-input__inner" maxlength="9" @input="checkPay(applyCount)"/>
+        </div>
+        <p style="margin-bottom: 20px;"></p> 
       </div>
       <span class="button-con-right">
         <el-button type="primary" @click="ensure" size="mini">提交</el-button>
@@ -103,6 +104,29 @@
       }
     },
     methods: {
+      checkPay(value) {
+        //收费标准
+        if(/[^\d^\.]+/g.test(value)) {
+
+          this.applyCount = value.replace(/[^\d^\.]+/g,'')
+         
+          
+        } else if(value.indexOf('.') > -1 && value.charAt(0) !== '.'){
+          //有小数点
+          this.applyCount = value.slice(0,value.indexOf('.')+3)
+          
+        } else if(value.indexOf('.') < 0) {
+          //没有小数点
+          this.applyCount = value.slice(0,6)
+          
+        } else if(value.charAt(0) == '.'){
+          //没有整数，有小数点
+          this.applyCount = '0'+value
+          
+        } else {
+          //callback()
+        }
+      },
       getList() {
         getShareList().then((resp) => {
           this.dataArray = resp.data.list
@@ -115,7 +139,8 @@
         })
       },
       apply () {
-        this.showApply = true;
+        this.showApply = true
+        this.applyCount = ''
       },
       cancel () {
         this.showApply = false
@@ -128,7 +153,7 @@
           if (resp.code == 200) {
             this.$message({
               type: 'success',
-              message: '申请成功'
+              message: '充值申请提交成功，待管理员审批，审批后会立即到账'
             })
             this.showApply = false
           } else {

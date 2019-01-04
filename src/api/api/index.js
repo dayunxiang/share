@@ -153,3 +153,11 @@ export function getBasicTypeArray() {
     method: 'get'
   })
 }
+//按类型查询已启用状态的字典(不分页)
+export function getRequireTypeArray(form) {
+  return fetch({
+    url: '/manage/dicDetail/type_enable',
+    method: 'get',
+    params: form
+  })
+}

@@ -1,7 +1,7 @@
 <template>
   <div class="scroll">
     <front-header></front-header>
-    <div>
+    <div class="mb325">
       <router-view></router-view>
     </div>
     <front-footer></front-footer>
@@ -32,6 +32,7 @@
 
 <style lang="less" >
    @import './front.less';
+  
 </style>
 
 

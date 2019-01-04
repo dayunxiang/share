@@ -28,7 +28,7 @@
             </transition-group>-->
             <span ref="tagsPageOpened" v-for="(item, index) in pageTagsList" :key="index" :class="['tags', item.meta.active ? 'active' : '', item.name == 'shareCenter' ? 'shareTab' : '']" @click="changeTab(item, index)">
                 {{item.meta.title}}
-                <span class="close" @click.stop="closeTag(item, index)" v-if="item.name != 'shareCenter'">x</span>
+                <span class="close" @click.stop="closeTag(item, index)" v-if="item.name != 'shareCenter'"><i class="el-icon-close"></i></span>
             </span>
         </div>
     </div>

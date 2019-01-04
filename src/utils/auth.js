@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 
 const TokenKey = 'AdminToken'
+const loginFlag = 'loginFlag'
 const region = 'city'
 const user = 'nameUser'
 const history = 'path'
@@ -15,6 +16,17 @@ export function setToken(token) {
 
 export function removeToken() {
   return Cookies.remove(TokenKey)
+}
+export function getLoginFlag() {
+  return Cookies.get(loginFlag)
+}
+
+export function setLoginFlag(flag) {
+  return Cookies.set(loginFlag, flag)
+}
+
+export function removeLoginFlag() {
+  return Cookies.remove(loginFlag)
 }
 
 export function getCity() {

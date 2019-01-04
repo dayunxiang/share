@@ -24,10 +24,10 @@
             </div>
           </el-form-item>
           <el-form-item label="基础对象：" prop="tableName" class="is-required">
-            <el-select v-model="category" size="small" @change="getChildCategory" class="category">
+            <el-select v-model="category" size="small" @change="getChildCategory" class="category" filterable>
               <el-option v-for="(item, index) in categoryArray" :key="index" :value="item.type" :label="item.tableNote"></el-option>
             </el-select>
-            <el-select v-model="form.tableName" size="small" class="category" @change="changeChild">
+            <el-select v-model="form.tableName" size="small" class="category" @change="changeChild" filterable>
               <el-option v-for="(item, index) in childCategoryArray" :key="index" :value="item.tableName" :label="item.propertyTableName"></el-option>
             </el-select>
           </el-form-item>
@@ -101,7 +101,7 @@
           <label>API链接：</label>
           <div class="detail font-0">
             <el-input size="mini" class="link" :readonly="true" v-model="apiDetail.url"></el-input>
-            <el-button size="mini" class="btn-book" @click="bookApi">立即订阅</el-button>
+            <el-button size="mini" class="btn-book" @click="bookApi" type="primary">立即订阅</el-button>
           </div>
 
         </div>
@@ -156,12 +156,13 @@
       </div>
     </div>
 
-    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="375px">
-      <div >
-        <p style="margin-bottom: 20px;">
-          <label>申请金额：</label>
-          <el-input size="mini" v-model="applyCount" class="form-input" maxlength="20"></el-input>
-        </p> 
+    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="390px">
+      <div>
+        <label><span class="red">* </span>申请金额：</label>
+        <div class="form-input el-input el-input--mini">
+          <input type="text" v-model="applyCount" class="el-input__inner" maxlength="9" @input="checkPay(applyCount)"/>
+        </div>
+        <p style="margin-bottom: 20px;"></p> 
       </div>
       <span class="button-con-right">
         <el-button type="primary" @click="ensure" size="small">提交</el-button>
@@ -169,7 +170,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="立即订阅" :visible="showApiName" v-if="showApiName"  :append-to-body="true" @close="cancel" width="375px">
+    <el-dialog title="立即订阅" :visible="showApiName"  :append-to-body="true" @close="cancel" width="375px">
       <div >
         <p style="margin-bottom: 20px;">
           <label>API名称：</label>
@@ -181,6 +182,17 @@
         <el-button  @click="cancel" size="small">取消</el-button>
       </span>
     </el-dialog>
+
+    <div role="alert" class="el-message el-message--success is-closable showMyMessage" style="z-index: 2014;" v-if="showMyMessage">
+      <i class="el-message__icon el-icon-success"></i>
+      <p class="el-message__content">
+        <span>{{ myMessageCon }}，</span>
+        <router-link class="toLink" :to="'/api/myApi'">请到个人中心 =&gt; API中心中查看 &nbsp;</router-link>
+      </p>
+      <i class="el-message__closeBtn el-icon-close" @click="closeMyMessage"></i>
+    </div>
+
+    
   </div>
 </template>
 
@@ -200,6 +212,8 @@
     },
     data() {
       return {
+        myMessageCon: '',
+        showMyMessage: false,
         userPrice: '',
         form: {
           tableName: '',
@@ -291,12 +305,36 @@
       }
     },
     methods: {
+      checkPay(value) {
+        value += ''
+        //收费标准
+        if(/[^\d^\.]+/g.test(value)) {
+
+          this.applyCount = value.replace(/[^\d^\.]+/g,'')
+         
+          
+        } else if(value.indexOf('.') > -1 && value.charAt(0) !== '.'){
+          //有小数点
+          this.applyCount = value.slice(0,value.indexOf('.')+3)
+          
+        } else if(value.indexOf('.') < 0) {
+          //没有小数点
+          this.applyCount = value.slice(0,6)
+          
+        } else if(value.charAt(0) == '.'){
+          //没有整数，有小数点
+          this.applyCount = '0'+value
+          
+        } else {
+          //callback()
+        }
+      },
       getUserInfo() {
         getUserInfoDetail().then(resp => {
           this.userCount = resp.data
         })
         getApiMoney().then(res => {
-          this.userPrice = res.data.list[0].payStandard.toFixed(2)
+          this.userPrice = Number(res.data.list[0].payStandard).toFixed(2)
         })
       },
       getCategory() {
@@ -431,7 +469,7 @@
           if (resp.code == 200) {
             this.$message({
               type: 'success',
-              message: '申请成功'
+              message: '充值申请提交成功，待管理员审批，审批后会立即到账'
             })
             this.applyCount = ''
             this.showApply = false
@@ -475,15 +513,16 @@
       bookApi() {
         this.showApiName = true
       },
+      closeMyMessage() {
+        this.showMyMessage = false
+      },
       doBook() {
         let param = Object.assign({apiName: this.apiName}, this.form)
         bookBasicApi(param).then(resp => {
           if (resp.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '订阅成功'
-            })
             this.showApiName = false
+            this.showMyMessage = true
+            this.myMessageCon = '订阅成功'
           } else {
             this.$message({
               type: 'error',
@@ -498,6 +537,11 @@
 
 <style lang="less" >
    @import '../front.less';
+   .toLink {
+    color: #009dec;
+    cursor: pointer;
+    text-decoration: underline;
+   }
 </style>
 
 

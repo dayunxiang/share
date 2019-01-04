@@ -132,3 +132,51 @@ export function getUserDetail(form) {
   })
 }
 
+//预警
+//预警号码列表
+export function warningPhoneList(form) {
+  return fetch({
+    url:'/manage/warn/mobile',
+    method: 'get',
+    params: form
+  })
+}
+//新增预警号码
+export function addWarningPhone(form) {
+  return fetch({
+    url:'/manage/warn/mobile',
+    method: 'post',
+    data: form
+  })
+}
+//修改预警号码
+export function editWarningPhone(form) {
+  return fetch({
+    url:'/manage/warn/mobile',
+    method: 'put',
+    data: form
+  })
+}
+//删除预警号码
+export function delWarningPhone(id) {
+  return fetch({
+    url:'/manage/warn/mobile/' + id,
+    method: 'delete'
+  })
+}
+//预警号码详情
+export function warningPhoneDetail(id) {
+  return fetch({
+    url:'/manage/warn/mobile/' + id,
+    method: 'get'
+  })
+}
+//发送验证码
+export function sendVerifyCode(form) {
+  return fetch({
+    url:'/manage/warn/mobile/validate',
+    method: 'post',
+    data: form
+  })
+}
+

@@ -11,19 +11,19 @@
         </el-button-group>
       </el-col>
       <el-col :span="8" style='margin-top:15px;margin-left:16px;'>
-        <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input>
+        <el-input placeholder="输入关键字进行过滤" v-model="filterText" size="small"> </el-input>
         <el-tree class="filter-tree" :data="treeData" node-key="id" highlight-current :props="defaultProps" :filter-node-method="filterNode" ref="groupTree" @node-click="getNodeData" default-expand-all check-strictly> </el-tree>
       </el-col>
       <el-col :span="14" style='margin-top:15px;'>
         <el-form :label-position="labelPosition" label-width="80px" :model="form" ref="form" :rules="rules">
           <el-form-item label="名称" prop="name">
-            <el-input v-model="form.name" :disabled="formEdit" placeholder="请输入用户名称"></el-input>
+            <el-input v-model="form.name" :disabled="formEdit" placeholder="请输入用户名称" size="small"></el-input>
           </el-form-item>
           <el-form-item label="编码" prop="code">
-            <el-input v-model="form.code" :disabled="formEdit" placeholder="请输入用户编码"></el-input>
+            <el-input v-model="form.code" :disabled="formEdit" placeholder="请输入用户编码" size="small"></el-input>
           </el-form-item>
           <el-form-item label="描述">
-            <el-input v-model="form.description" :disabled="formEdit" placeholder="请输入用户描述"></el-input>
+            <el-input v-model="form.description" :disabled="formEdit" placeholder="请输入用户描述" size="small"></el-input>
           </el-form-item>
           <el-form-item v-if="formStatus == 'update'">
             <el-button type="primary" @click="update('form')" size="small">更新</el-button>

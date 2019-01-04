@@ -7,7 +7,7 @@
         <el-row>
           <el-col :span="6">
             <label>工单编号:</label>
-            <span>{{data.id}}</span>
+            <span>{{data.num}}</span>
           </el-col>
           <el-col :span="6">
             <label>申请人:</label>
@@ -42,7 +42,8 @@
       <div class="detail-container">
         <el-row :gutter="20"> 
           <el-col :span="5">
-            <img :src="avatorUrl" class="avator-img" />
+            <img :src="data.applicantPhoto" class="avator-img" v-if="data.applicantPhoto.length > 0"/>
+            <img :src="avatorUrl2" class="avator-img" v-if="data.applicantPhoto.length == 0"/>
             <span class="avator-name">{{data.applicant}}</span>
           </el-col>
           <el-col :span="19">
@@ -56,7 +57,8 @@
       <div class="detail-container">
         <el-row :gutter="20">
           <el-col :span="5">
-            <img :src="avatorUrl" class="avator-img" />
+            <img class="avator-img" :src="item.photo" v-if="item.photo.length > 0"/>
+            <img :src="avatorUrl2" class="avator-img" v-if="item.photo.length == 0"/>
             <span class="avator-name">{{item.answor}}</span>
           </el-col>
           <el-col :span="19">
@@ -71,7 +73,9 @@
       <div class="detail-container">
         <el-row>
           <el-col :span="5">
-            <img :src="avatorUrl" class="avator-img" />
+            <img :src="userInfo.photo" class="avator-img" v-if="userInfo.photo.length > 0"/>
+            <img :src="avatorUrl" class="avator-img" v-if="userInfo.photo.length == 0 && userInfo.isAdmin == '1'"/>
+            <img :src="avatorUrl2" class="avator-img" v-if="userInfo.photo.length == 0 && userInfo.isAdmin == '0'"/>
             <span class="avator-name">{{userName}}</span>
             <br/>
             <span class="deal-check" v-if="tabNum == 2">
@@ -116,6 +120,7 @@
     },
     activated() {
       if (getUser()) {
+        this.userInfo = JSON.parse(getUser())
         this.userName = JSON.parse(getUser()).name
       }
     },
@@ -139,6 +144,7 @@
         dataId: '',
         content: '',
         userName: '',
+        userInfo: {},
         isResolve: '',
         tabNum: '',
         type: '',
@@ -148,7 +154,8 @@
         form: {
           queryModule: ''
         },
-        avatorUrl: require('@/assets/images/price2.png')
+        avatorUrl: require('@/assets/images/default-avator.jpg'),
+        avatorUrl2: require('@/assets/images/default-admin.jpg')
         
       }
     },

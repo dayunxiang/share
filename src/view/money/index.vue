@@ -54,7 +54,7 @@
       </el-row>
 
       <div class="btn-box">
-        <el-button size="mini" class="operateBtn" @click="addRecord">发放水利币</el-button>
+        <el-button size="mini" class="operateBtn" @click="addRecord"><i class="iconfont icon-fabushuilibi--"></i> 发放水利币</el-button>
       </div>
       <el-table :data="list"  border v-show="tabNum != 3">
         <el-table-column  fixed type="index" width="50" label="序号"></el-table-column>
@@ -75,10 +75,10 @@
         </el-table-column>
       </el-table>
 
-      <el-table :data="list2" stripe border v-show="tabNum == 3">
+      <el-table :data="list2"  border v-show="tabNum == 3">
         <el-table-column  type="index" width="50" label="序号" fixed></el-table-column>
         <el-table-column label="发放账户" prop="givingAccount"  ></el-table-column>
-        <el-table-column label="所在部门" prop="applyAmount" ></el-table-column>
+        <el-table-column label="所在部门" prop="office" ></el-table-column>
         <el-table-column label="发放时间" prop="givingDate"  width="180"></el-table-column>
         <el-table-column label="发放数量（水利币）" prop="num" ></el-table-column>
       </el-table>
@@ -100,7 +100,7 @@
     <el-dialog title="发放水利币" :visible="showMoney" width="500px" :append-to-body="true" @close="cancel">
        <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="110px">
          <el-form-item label="发放至账户：" prop="user">
-           <el-input size="small" v-model="addForm.user" @input="checkUser($event)" @blur="blurUser"></el-input>
+           <el-input size="small" v-model="addForm.user" @keyup.enter.native="checkUser($event)" @input="checkUser($event)" @blur="blurUser"></el-input>
            <div class="user-list" v-show="userList.length > 0">
              <span v-for="item in userList" :key="item.id" @click="chooseUser(item)">{{item.userName}}</span>
            </div>
@@ -173,10 +173,10 @@
         },
         addRules: {
           user: [
-            {required: true, message: '请输入发放用户', trigger: 'blur'}
+            {required: true, message: '请输入发放账户', trigger: 'blur'}
           ],
           money: [
-            {required: true, message: '请输入金额', trigger: 'blur'}
+            {required: true, message: '请输入发放金额', trigger: 'blur'}
           ]
         },
         page: {
@@ -325,7 +325,7 @@
           if (!this.userId) {
             this.addForm.user = ''
           }
-        }, 100)
+        }, 300)
       },
       chooseUser(data) {
         this.addForm.user = data.userName
@@ -391,6 +391,7 @@
       height: 30px;
       line-height: 30px;
       border-bottom: 1px solid #ccc;
+      cursor: pointer;
     }
     span:hover {
       background: #f3f3f3;

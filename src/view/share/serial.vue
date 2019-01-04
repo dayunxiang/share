@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="page-title">账户流水</div>
-    <div class="main-container">
+    <div class="main-container pt-twoline">
       <div class="mar-20">
         <div class="pu-toolbar" style="padding: 0;">
           <div>
@@ -10,7 +10,7 @@
                 <el-row :gutter="15">
                   <el-col :span="8">
                     <span class="form-label">对象名称</span>
-                    <el-input v-model="form.name" size="mini" class="form-input" placeholder="请输入对象名称"></el-input>
+                    <el-input v-model="form.name" size="mini" class="form-input" placeholder="请输入对象名称" maxlength="50"></el-input>
                   </el-col>
                   <el-col :span="8" class="height-28">
                     <span class="form-label">时间</span>

@@ -10,7 +10,7 @@
       <el-table :data="list" @selection-change="selectChange"  border >
         <el-table-column fixed type="selection" width="40"></el-table-column>
         <el-table-column fixed type="index" width="50" label="序号"></el-table-column>
-        <el-table-column label="名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
+        <el-table-column label="数据名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
         <el-table-column label="价格（水利币）" prop="payStandard"  width="140">
           <template slot-scope="scope">
             <span v-if="scope.row.isFree != '1'" class="free-color">免费</span>
@@ -292,6 +292,7 @@
         }
       },
       apiDetail(row) {
+        sessionStorage.setItem('tabNum', 3)
         if(this.tabNum == 1) {
           this.$router.push({
             name: 'dataDetail',

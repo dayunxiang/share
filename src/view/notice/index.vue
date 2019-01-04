@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="page-title">公共管理</div>
-    <div class="main-container">
+    <div class="page-title">公告管理</div>
+    <div class="main-container pt-twoline-nomar">
       
       <div class="btn-box">
-        <el-button size="mini" class="operateBtn" @click="addNotice">发布公告</el-button>
+        <el-button size="mini" class="operateBtn" @click="addNotice"><i class="iconfont icon-fabugonggao_huaban"></i> 发布公告</el-button>
       </div>
       <el-table :data="list"  border >
         <el-table-column  fixed type="index" width="50" label="序号"></el-table-column>

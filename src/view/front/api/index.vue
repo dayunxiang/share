@@ -45,15 +45,16 @@
             <span class="api-name white-color">基础API订制</span><br/>
             <el-button type="primary" class="btn custom-btn" @click="basicAPi()">立即订制</el-button>
           </div>
-          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.apiName">
+          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.apiShortDescription" @click="dataDetail(item)">
             <img :src="defaultUrl" v-if="!item.filePath"/>
             <img :src="item.filePath" v-if="item.filePath"/><br/>
             <span class="new" v-if="item.isNew">NEW</span>
+            <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
             <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
             <span class="free" v-if="item.isFree == '0'">免费</span><br/>
             <span class="api-name">{{item.apiName}}</span>
             
-            <el-button type="primary" class="btn" @click="dataDetail(item)">立即下单</el-button>
+            <el-button type="primary" class="btn" @click="dataDetail(item)">立即订阅</el-button>
           </div>
 
         </div>
@@ -88,13 +89,31 @@
   import {getApiList} from '@/api/front/index'
   import {getApiTypeArray} from '@/api/api/index'
   import axios from 'axios'
+  import { getToken } from '@/utils/auth'
   export default {
     components: {
     },
     mounted() {
+      if (this.$store.state.app.searchApiName) {
+        this.form.apiName = this.$store.state.app.searchApiName
+        this.$store.state.app.searchApiName = ''
+      }
       this.getApiType()
       this.getList()
-      
+    },
+    computed: {
+      searchName() {
+        return this.$store.state.app.searchApiName
+      }
+    },
+    watch: {
+      searchName(val) {
+        if (val) {
+          this.form.apiName = val
+          this.getList()
+          this.$store.state.app.searchApiName = ''
+        }
+      }
     },
     data() {
       return {
@@ -102,6 +121,7 @@
         searchUrl: require('@/assets/images/api-search.png'),
         defaultUrl: require('@/assets/images/default.png'),
         customUrl: require('@/assets/images/api-custom.png'),
+        priceUrl: require('@/assets/images/price2.png'),
         form: {
           apiType: '',
           sort: '1',
@@ -226,9 +246,14 @@
         this.getList()
       },
       basicAPi() {
-        this.$router.push({
-          name: 'basicApi'
-        })
+        if(getToken()) {
+          this.$router.push({
+            name: 'basicApi'
+          })
+        } else {
+          this.$store.state.app.loginFlag = true
+        }
+        
       }
     }
   }

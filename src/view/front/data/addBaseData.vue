@@ -2,12 +2,12 @@
   <div class="front-index">
     <div class="front-main">
       <div class="basic-outer">
-        <el-form ref="form" :model="form" :rules="rules" label-position="left" label-width="82px">
+        <el-form ref="form" :model="form" :rules="rules" label-position="left" label-width="100px">
           <el-form-item label="账户：" class="line-30 pl10">
             <div class="user-info">
               <div class="api-count">
                 <div class="api-price">
-                  <span class="title">每次调用水利币</span><br/>
+                  <span class="title">每次下载水利币</span><br/>
                   <img :src="priceUrl" />
                   <span class="price">{{userPrice}}</span>/次
                 </div>
@@ -23,21 +23,23 @@
               </div>
             </div>
           </el-form-item>
-          <div class="flex-box">
-            <span class="red">*</span>
-            <el-form-item label="数据类型：" prop="categoryId">
-              <el-select  v-model="form.categoryId" size="mini" @change="changeCategory" class="width-300">
+          <!-- <div class="flex-box"> -->
+            <!-- <span class="red">*</span> -->
+            <el-form-item label="数据类型：" prop="categoryId" class="is-required">
+              <el-select  v-model="form.categoryId" size="mini" @change="changeCategory" class="width-300" filterable>
                 <el-option v-for="item in bigCatesArr" :label="item.tableNote" :value="item.type" :key="item.id"></el-option>
               </el-select>
-              <el-select  v-model="form.propertyTableId" size="mini" @change="changePropertyTable" class="width-300">
+              <el-select  v-model="form.propertyTableId" size="mini" @change="changePropertyTable" class="width-300" filterable>
                 <el-option v-for="item in propertyTableArr" :label="item.propertyTableName" :value="item.tableName" :key="item.id"></el-option>
               </el-select>
             </el-form-item>
-          </div>
-          <div class="flex-box">
-            <span class="red red-pos">*</span>
-            <el-form-item label="字段：" prop="checkedFileds">
-              <div class="field-color" v-if="form.propertyTableId">
+          <!-- </div> -->
+          <!-- <div class="flex-box"> -->
+            <!-- <span class="red red-pos">*</span> -->
+            <el-form-item label="字段：" prop="checkedFileds" class="is-required">
+
+              <div class="field-color">
+                <div v-if="form.propertyTableId">
                 <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange" >全选</el-checkbox>
                 <el-checkbox-group v-model="form.checkedFileds" @change="handleCheckedChange">
                   <div v-for="field in fieldsArr" :key="field.id" class="mr-30 line-block">
@@ -46,8 +48,9 @@
                   </div>
                 </el-checkbox-group>
               </div>
+              </div>
             </el-form-item>
-          </div>
+          <!-- </div> -->
         </el-form>
       </div>
       <div class="btn-outer">
@@ -80,12 +83,13 @@
       <div class="btn-outer"></div>
     </div>
    
-    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="375px">
-      <div >
-        <p style="margin-bottom: 20px;">
-          <label>申请金额：</label>
-          <el-input size="mini" v-model="applyCount" class="form-input" maxlength="20"></el-input>
-        </p> 
+    <el-dialog title="充值申请" :visible="showApply" v-if="showApply"  :append-to-body="true" @close="cancel" width="390px">
+      <div>
+        <label><span class="red">* </span>申请金额：</label>
+        <div class="form-input el-input el-input--mini">
+          <input type="text" v-model="applyCount" class="el-input__inner" maxlength="9" @input="checkPay(applyCount)"/>
+        </div>
+        <p style="margin-bottom: 20px;"></p> 
       </div>
       <span class="button-con-right">
         <el-button type="primary" @click="ensure" size="small">提交</el-button>
@@ -93,11 +97,23 @@
       </span>
     </el-dialog>
     <template v-if="defineDialogVisible">
-      <el-dialog title="查询内容" :visible.sync="defineDialogVisible" width="500px" :append-to-body="true">
+      <el-dialog title="查询内容" :visible.sync="defineDialogVisible" width="500px" :append-to-body="true" class="myFieldDialog">
         <el-form>
-          <el-form-item label="查询内容：" label-width="100px">
-            <el-input v-model="content"></el-input>
-          </el-form-item>
+          <el-form-item label="查询内容: " label-width="80px">
+          <template v-if="myField.wordType == 'DATE'">
+            <el-date-picker
+              v-model="content"
+              type="datetimerange"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+              style="width: 380px;">
+            </el-date-picker>
+          </template>
+          <template v-if="myField.wordType != 'DATE'">
+            <el-input v-model="content" size="mini"></el-input>
+          </template>
+        </el-form-item>
         </el-form>
         <span class="button-con-right">
           <el-button type="primary" size="small" @click="saveContent">确定</el-button>
@@ -147,6 +163,7 @@
     },
     data() {
       return {
+        myField: '',
         markVisible: false,
         firstCreate: false,
         defineDialogVisible: false,
@@ -199,6 +216,30 @@
       }
     },
     methods: {
+      checkPay(value) {
+        value += ''
+        //收费标准
+        if(/[^\d^\.]+/g.test(value)) {
+
+          this.applyCount = value.replace(/[^\d^\.]+/g,'')
+         
+          
+        } else if(value.indexOf('.') > -1 && value.charAt(0) !== '.'){
+          //有小数点
+          this.applyCount = value.slice(0,value.indexOf('.')+3)
+          
+        } else if(value.indexOf('.') < 0) {
+          //没有小数点
+          this.applyCount = value.slice(0,6)
+          
+        } else if(value.charAt(0) == '.'){
+          //没有整数，有小数点
+          this.applyCount = '0'+value
+          
+        } else {
+          //callback()
+        }
+      },
       checkField(rule, value, callback) {
         if(this.form[rule.key].length == 0 && !this.switchFlag) {
           callback(new Error (rule.message))
@@ -218,22 +259,36 @@
         this.switchFlag = true
         getSonCates(this.form.categoryId).then( res => {
           this.propertyTableArr = res.data
-          this.form.propertyTableId  = this.propertyTableArr[0].tableName
-          this.changePropertyTable()
+
+          if(this.propertyTableArr.length > 0) {
+            this.form.propertyTableId  = this.propertyTableArr[0].tableName
+            this.changePropertyTable()
+                        
+          } else {
+            this.form.propertyTableId = ''
+          }
+          
         })
       },
       changePropertyTable() {
-        this.switchFlag = true
-        getFields(this.form.propertyTableId).then( res => {
-          let id = this.form.categoryId
-          let pid = this.form.propertyTableId
-          this.form = {
-            categoryId: id,
-            propertyTableId: pid,
-            checkedFileds: [] 
-          }
-          this.fieldsArr = res.data
-        })
+        let _this = this
+        this.checkAll = false
+        this.isIndeterminate = false
+        setTimeout( () => {
+          _this.switchFlag = true
+            getFields(_this.form.propertyTableId).then( res => {
+            let id = _this.form.categoryId
+            let pid = _this.form.propertyTableId
+            _this.form = {
+              categoryId: id,
+              propertyTableId: pid,
+              checkedFileds: [] 
+            }
+            _this.fieldsArr = res.data
+          })
+        }, 100)
+       // this.switchFlag = true
+        
       },
       
       handleCheckAllChange(val) {
@@ -254,7 +309,7 @@
           this.userCount = resp.data
         })
         getDataMoney().then(res => {
-          this.userPrice = res.data.list[0].payStandard.toFixed(2)
+          this.userPrice = Number(res.data.list[0].payStandard).toFixed(2)
         })
       },
       apply () {
@@ -275,7 +330,7 @@
           if (resp.code == 200) {
             this.$message({
               type: 'success',
-              message: '申请成功'
+              message: '充值申请提交成功，待管理员审批，审批后会立即到账'
             })
             this.applyCount = ''
             this.showApply = false
@@ -288,6 +343,7 @@
         })
       },
       defineField(field) {
+        this.myField = field
         this.defineDialogVisible = true
         this.content = this.form[field.word]
         this.contentKey = field.word
@@ -305,7 +361,8 @@
         }
         this.form.checkedFileds.map( v => {
           if (keys.indexOf(v.word) > -1) {
-            json[v.word] = this.form[v.word]
+            //
+            json[v.word] = v.wordType == 'DATE' ? this.form[v.word].join() : this.form[v.word]
           } else {
             json[v.word] = ''
           }
@@ -323,7 +380,7 @@
         this.form.checkedFileds.map( v => {
           let json = {}
           if (keys.indexOf(v.word) > -1) {
-            json.value = this.form[v.word]
+            json.value = v.wordType == 'DATE' ? this.form[v.word].join() : this.form[v.word]
           } else {
             json.value = ''
           }
@@ -363,7 +420,7 @@
         json2.fieldsList = this.getParams2()
         json2.mainType = this.form.categoryId
         json2.price = this.userPrice
-        json2.name = this.markForm.markContent.length > 0 ? this.markForm.markContent.length : '基础数据个人定制'
+        json2.name = this.markForm.markContent.length > 0 ? this.markForm.markContent : '基础数据个人定制'
 
         return json2
       },
@@ -381,7 +438,7 @@
         beforeOwnBasicDown(this.getParams3()).then(res => {
           if(res.code == 200) {
             this.markVisible = false
-            let name2 = this.markForm.markContent.length > 0 ? this.markForm.markContent.length : '基础数据个人定制'
+            let name2 = this.markForm.markContent.length > 0 ? this.markForm.markContent : '基础数据个人定制'
               download(this.getParams3(), '/webapp/data/tailor_made_form' , name2+'.xlsx', function() {
               loading.close()
             })
@@ -392,7 +449,6 @@
             })
           }
         })
-        
       }
     }
   }

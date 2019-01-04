@@ -1,14 +1,14 @@
 <template>
   <div>
     <div class="page-title">文档管理</div>
-    <div class="main-container">
+    <div class="main-container pt-oneline">
       
       <el-row class="searchBar">
         <div>
           <el-row :gutter="15">
             <el-col :span="8" >
-              <span class="form-label">名称</span>
-              <el-input v-model="form.name" size="mini" class="form-input" placeholder="请输入名称"></el-input>
+              <span class="form-label">文档名称</span>
+              <el-input v-model="form.name" size="mini" class="form-input" placeholder="请输入文档名称" maxlength="50"></el-input>
             </el-col>
             <el-col :span="8" class="height-28" >
               <span class="form-label">发布时间</span>
@@ -45,7 +45,7 @@
       <el-table :data="list" @selection-change="selectChange"  border >
         <el-table-column fixed type="selection" width="40"></el-table-column>
         <el-table-column fixed type="index" width="50" label="序号"></el-table-column>
-        <el-table-column label="名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
+        <el-table-column label="文档名称" prop="name"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
         <el-table-column label="作者" prop="author"  width="140"></el-table-column>  
         <el-table-column label="创建时间" prop="createTime"  width="180"></el-table-column>
         <el-table-column label="文件格式" prop="docType"  width="180"></el-table-column>
@@ -323,6 +323,7 @@
         }
       },
       apiDetail(row) {
+        sessionStorage.setItem('tabNum', 4)
         this.$router.push({
           name: 'docDetail',
           query: {

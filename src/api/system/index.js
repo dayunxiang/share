@@ -126,3 +126,58 @@ export function importDept(form) {
     headers: {'Content-Type': 'multipart/form-data'}
   });
 }
+//api订阅记录
+export function getApiLogList(form) {
+  return fetch({
+    url:'/manage/my/api/order',
+    method: 'post',
+    data: form
+  });
+}
+//数据下载记录
+export function getDataLogList(form) {
+  return fetch({
+    url:'/data/download/record',
+    method: 'post',
+    data: form
+  });
+}
+//文档下载记录
+export function getDocLogList(form) {
+  return fetch({
+    url:'/base/document/operating/record',
+    method: 'post',
+    data: form
+  });
+}
+//api启用、禁用
+export function changeApiStatus(form) {
+  return fetch({
+    url:'/manage/my/api/call_type',
+    method: 'post',
+    data: form
+  });
+}
+//api记录详情
+export function apiLogDetail(id) {
+  return fetch({
+    url:'/manage/my/api/order/' + id,
+    method: 'get'
+  });
+}
+//api数据范围字段列表
+export function authorityParam(form) {
+  return fetch({
+    url:'/manage/request/parameters/list',
+    method: 'get',
+    params: form
+  });
+}
+//api数据范围字段列表
+export function authorityParamList(form) {
+  return fetch({
+    url:'/manage/my/api/permission',
+    method: 'get',
+    params: form
+  });
+}

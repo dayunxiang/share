@@ -15,16 +15,18 @@
         
       </span>
       <span class="puUser" @mouseover="showIcon" @mouseout="hideIcon">
-        <span>{{userName}}</span>
+        <span class="vertical-line"></span>
+        <span class="username">{{userName}}</span>
+        <span class="vertical-line"></span>
       </span>
-      <span @click="logout">退出</span>
+      <span @click="logout" class="out-span">退出</span>
     </div>
   </div>
 </template>
 
 <script>
   import {userLogout} from '@/api/index/index'
-  import {removeToken, getUser, setHistory} from '@/utils/auth'
+  import {removeToken, getUser, setHistory,  removeLoginFlag} from '@/utils/auth'
   import {getMessageCount} from '@/api/message/index';
   import store from '../../store/index'
   var timer = ''
@@ -66,12 +68,17 @@
           }).then(() => {
             userLogout().then((resp) => {
               removeToken()
+              removeLoginFlag()
               sessionStorage.removeItem('menu')
               sessionStorage.removeItem('isFirst')
               this.$store.state.user.menus = []
-              this.$router.push({
-                path: '/login'
-              })
+              if (resp.data) {
+                window.location.href = resp.data
+              } else {
+                this.$router.push({
+                  path: '/login'
+                })
+              }
             })
           }).catch((error) => {
             console.log(error)
@@ -122,7 +129,7 @@
   .to-home {
     cursor: pointer;
     display: inline-block;
-    margin-left: 10px;
+    margin-left: 16px;
     margin-top: 20px;
     color: #666;
     &:hover {
@@ -139,7 +146,7 @@
     display: inline-block;
     width: 16px;
     height: 14px;
-    margin-right: 4px;
+    margin-right: 8px;
     background: url('../../assets/images/back.png') no-repeat;
   }
 </style>

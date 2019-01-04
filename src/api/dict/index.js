@@ -23,6 +23,15 @@ export function addDictType(form) {
     data: form
   })
 }
+//修改类型
+export function editDictType(form) {
+  return fetch({
+    url:'/manage/dicType/',
+    method: 'put',
+    data: form
+  })
+}
+
 //删除类型
 export function deleteDictType(id) {
   return fetch({
@@ -44,6 +53,13 @@ export function editDictDetail(form) {
     url:'/manage/dicDetail/',
     method: 'PUT',
     data: form
+  })
+}
+//删除字典
+export function delDictDetail(id) {
+  return fetch({
+    url:'/manage/dicDetail/' + id,
+    method: 'delete'
   })
 }
 //修改字典状态

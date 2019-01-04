@@ -4,7 +4,7 @@
       <div class="doc-container">
         <div class="doc-type">
           <ul>
-            <li v-for="(item, index) in apiTypeArray" :key="index" :class="{active: item.actived}" @click="changeTab(index)">
+            <li v-for="(item, index) in apiTypeArray" :key="index" :class="{active: item.actived}" @click="changeTab(index)" :title="item.name">
               <span>{{item.name}}</span>
             </li>
           </ul>
@@ -40,11 +40,12 @@
                 <img :src="pptdUrl" class="doc-img" v-else-if="scope.row.docType == 'ppt'"/>
                 <img :src="pdfUrl" class="doc-img" v-else-if="scope.row.docType == 'pdf'"/>
                 <img :src="txtUrl" class="doc-img" v-else-if="scope.row.docType == 'txt'"/>
-                <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'excel'"/>
+                <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'xlsx' || scope.row.docType == 'xls'"/>
                 <img :src="elseUrl" class="doc-img" v-else/>
                 {{scope.row.name}}
               </template>
             </el-table-column>
+            <el-table-column label="类型" prop="docType" width="70"></el-table-column>
             <el-table-column label="作者" prop="author" width="100"></el-table-column>
             <el-table-column label="时间" prop="createTime" width="180" :class-name="timeClick ? 'sort-positive1' : 'sort-reverse1'"></el-table-column>
             <el-table-column label="下载量" prop="downloadTimes" width="100" :class-name="timesClick ? 'sort-positive2' : 'sort-reverse2'"></el-table-column>
@@ -76,9 +77,27 @@
     components: {
     },
     mounted() {
+      if (this.$store.state.app.searchDocName) {
+        this.form.name = this.$store.state.app.searchDocName
+        this.$store.state.app.searchDocName = ''
+      }
       this.getList()
      // this.getType()
       this.getApiType()
+    },
+    computed: {
+      searchName() {
+        return this.$store.state.app.searchDocName
+      }
+    },
+    watch: {
+      searchName(val) {
+        if (val) {
+          this.form.name = val
+          this.getList()
+          this.$store.state.app.searchDocName = ''
+        }
+      }
     },
     data() {
       return {

@@ -139,16 +139,16 @@ export function getDocList(form) {
   })
 }
 //文档详情
-export function getDocDetail(id) {
+export function getDocDetail(tag, id) {
   return fetch({
-    url:'/webapp/document/preview/' + id,
+    url:'/webapp/document/preview/' + tag + id,
     method: 'get'
   })
 }
 //文档收藏
 export function collectDoc(form) {
   return fetch({
-    url:'/base/document/my/collection',
+    url:'/base/webapp/document/collection',
     method: 'POST',
     params: form
   })
@@ -183,5 +183,49 @@ export function getClassify(form) {
     url:'/manage/api/type/list',
     method: 'post',
     data: form
+  })
+}
+//获取首页api列表
+export function getIndexApiList() {
+  return fetch({
+    url:'/manage/api/list',
+    method: 'get'
+  })
+}
+//获取首页数据列表
+export function getIndexData() {
+  return fetch({
+    url:'/data/default/recommend',
+    method: 'get'
+  })
+}
+//获取首页文档列表
+export function getIndexDoc() {
+  return fetch({
+    url:'/base/document/document/recommend',
+    method: 'get'
+  })
+}
+//获取首页公告列表
+export function getIndexNotice() {
+  return fetch({
+    url:'/manage/notice/list',
+    method: 'get'
+  })
+}
+//获取首页所有公告列表
+export function getAllNotice(form) {
+  return fetch({
+    url:'/manage/notice',
+    method: 'get',
+    params: form
+  })
+}
+//根据分类获取相应api、数据、文档
+export function getMapData(form) {
+  return fetch({
+    url:'/webapp/index/list',
+    method: 'get',
+    params: form
   })
 }

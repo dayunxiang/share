@@ -44,6 +44,14 @@ export const constantRouterMap = [{
       },
       component: () => import('@/view/front/api/index')
     }, 
+    {//api首页-更多
+      path: 'api/more',
+      name: 'moreApi',
+      meta: {
+        access: 1
+      },
+      component: () => import('@/view/front/api/more')
+    }, 
     //第三方登录
     {
       path: '/third',
@@ -77,6 +85,15 @@ export const constantRouterMap = [{
       },
       component: () => import('@/view/front/data/data')
     },
+    //数据-更多
+    {
+      path: 'data/more',
+      name: 'moreData',
+      meta: {
+        access: 1
+      },
+      component: () => import('@/view/front/data/more')
+    },
     //文库
     {
       path: 'doc',
@@ -85,6 +102,15 @@ export const constantRouterMap = [{
         access: 1
       },
       component: () => import('@/view/front/doc/index')
+    },
+    //文库-更多
+    {
+      path: 'doc/more',
+      name: 'moreDoc',
+      meta: {
+        access: 1
+      },
+      component: () => import('@/view/front/doc/more')
     },
     {
       path: 'doc/detail',
@@ -196,7 +222,7 @@ export const constantRouterMap = [{
       path: '/api/collect',
       name: 'apiCollect',
       meta: {
-        title: '我的收藏'
+        title: 'API收藏'
       },
       component: () => import('@/view/share/collect')
     }, {
@@ -213,6 +239,13 @@ export const constantRouterMap = [{
         title: 'IP白名单'
       },
       component: () => import('@/view/share/ipWhiteList')
+    }, {
+      path: '/api/warning',
+      name: 'myWarning',
+      meta: {
+        title: '预警号码管理'
+      },
+      component: () => import('@/view/share/warning')
     }, {
       path: '/share/center',
       name: 'shareCenter',
@@ -263,7 +296,7 @@ export const constantRouterMap = [{
       path: '/market/myCollect',
       name: 'myCollect',
       meta: {
-        title: '我的收藏'
+        title: '数据收藏'
       },
       component: () => import('@/view/market/myCollect')
     },
@@ -341,7 +374,7 @@ export const constantRouterMap = [{
       path: '/doc/myDocCollect',
       name: 'myDocCollect',
       meta: {
-        title: '我的收藏'
+        title: '文档收藏'
       },
       component: () => import('@/view/docMarket/myCollect')
     },
@@ -465,6 +498,20 @@ export const constantRouterMap = [{
         title: '菜单管理'
       },
       component: () => import('@/view/system/menu/index')
+    },  {
+      path: '/system/log',
+      name: 'systemLog',
+      meta: {
+        title: '系统记录'
+      },
+      component: () => import('@/view/system/log/index')
+    }, {
+      path: '/api/authority',
+      name: 'apiAuthority',
+      meta: {
+        title: '权限设置'
+      },
+      component: () => import('@/view/system/log/authority')
     }]
 }]
 
@@ -526,8 +573,20 @@ router.beforeEach((to, from, next) => {
       } else {
         //next('/login')
         store.state.app.loginFlag = true
+        store.state.app.lastLogin = to
         next(from)
       }
     }
   }
 })
+
+router.onError((error) => {
+  const pattern = /Loading chunk (\d)+ failed/g;
+  const isChunkLoadFailed = error.message.match(pattern);
+ // const targetPath = router.history.pending.fullPath;
+  if (isChunkLoadFailed) {
+   //router.replace(targetPath);
+   window.location.reload()
+  }
+ });
+

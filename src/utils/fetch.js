@@ -4,7 +4,7 @@ import {
   MessageBox
 } from 'element-ui';
 import {router} from '../router'
-import {getToken, removeToken} from './auth'
+import {getToken, removeToken, getLoginFlag} from './auth'
 import store from '../store/index'
 /*import store from '../store';
 import {
@@ -20,8 +20,10 @@ const service = axios.create({
 //添加请求拦截器
 service.interceptors.request.use(request => {
   //请求头添加token
-  let token = getToken()
-  request.headers.token = token
+  let flag = getLoginFlag()
+  if (flag) {
+    request.headers.sso = flag 
+  }
   //在发送请求之前做某事，比如说 设置loading动画显示
   if(request.method === 'get'){
     // if(request.url.indexOf('?')>-1){
@@ -44,7 +46,7 @@ service.interceptors.response.use(response => {
   	if (res.code === 200) {
       return res
     }
-    if (res.code === 400) {
+    if (res.code === 400 || res.code === 407) {
       Message({
         message: res.message,
         type: 'error'

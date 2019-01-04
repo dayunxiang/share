@@ -6,21 +6,20 @@
       <div class="tab-container" >
         <el-form ref="form" :model="form" :rules="rules" label-width="100px" label-position="left" >
           <el-form-item label="标题：" prop="title" class="font-right" >
-            <el-input size="mini" class="form-input" v-model="form.title" maxlength="20"></el-input>
+            <el-input size="mini" class="form-input" v-model="form.title" maxlength="20" placeholder="请输入标题"></el-input>
           </el-form-item>
           <el-form-item label="手机号：" prop="phone" class="font-right" >
-            <el-input size="mini" class="form-input" v-model="form.phone" maxlength="11"></el-input>
+            <el-input size="mini" class="form-input" v-model="form.phone" maxlength="11" placeholder="请输入手机号"></el-input>
           </el-form-item>
-          <el-form-item label="咨询模块：" class="font-right" >
-            <el-select v-model="form.queryModule" size="mini" class="form-input" >
-              <el-option v-for="(item, index) in questionTypeArray" :key="index" :label="item.label" :value="item.value"></el-option>
+          <el-form-item label="咨询模块：" class="font-right" prop="queryModule">
+            <el-select v-model="form.queryModule" size="mini" class="form-input" clearable>
+              <el-option v-for="(item, index) in questionTypeArray" :key="index" :label="item.name" :value="item.dicDetailCode"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="问题描述：" prop="question" class="font-right" >
-            <el-input type="textarea" size="mini" class="radius" v-model="form.question" maxlength="400"></el-input>
+            <el-input type="textarea" size="mini" class="radius" v-model="form.question" maxlength="200" placeholder="请输入问题描述"></el-input>
           </el-form-item>
         </el-form>
-      
       </div>
 
 
@@ -35,6 +34,7 @@
 </template>
 
 <script>
+  import { getDictDetailList } from '@/api/dict/index'
   import {addOrder} from '@/api/order/index'
   export default {
     name: 'addOrder',
@@ -46,14 +46,18 @@
     },
  
     mounted() {
-
+      getDictDetailList({
+        dicCode: 10000003
+      }).then( res => {
+        this.questionTypeArray = res.data.list
+      })
     },
     data() {
       return {
         questionTypeArray: [
-          {value: '1', label: '数据下载'},
-          {value: '2', label: '充值付费'},
-          {value: '3', label: '账户设置'}
+          // {value: '1', label: '数据下载'},
+          // {value: '2', label: '充值付费'},
+          // {value: '3', label: '账户设置'}
         ],
         form: {
           queryModule: ''
@@ -81,26 +85,31 @@
     methods: {
     
       save() {
-        addOrder(this.form).then(resp => {
-          if (resp.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '新增成功'
-            })
-            this.$router.push({
-              name: 'myOrder',
-              params: {
-                type: 'init'
+        this.$refs['form'].validate((valid) => {
+          if(valid) {
+            addOrder(this.form).then(resp => {
+              if (resp.code == 200) {
+                this.$message({
+                  type: 'success',
+                  message: '新增成功'
+                })
+                this.$router.push({
+                  name: 'myOrder',
+                  params: {
+                    type: 'init'
+                  }
+                })
+                this.$store.commit('closeTag', 'addOrder')
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: resp.message
+                })
               }
-            })
-            this.$store.commit('closeTag', 'addOrder')
-          } else {
-            this.$message({
-              type: 'error',
-              message: resp.message
             })
           }
         })
+        
       },
  
       back() {
@@ -117,7 +126,7 @@
         if (value == '' || value == null || value == undefined) {
           callback()
         } else if (!/1[3,4,5,7,8,9]\d{9}/.test(value)) {
-          callback(new Error('手机格式错误'))
+          callback(new Error('手机号格式错误'))
         } else {
           callback()
         }

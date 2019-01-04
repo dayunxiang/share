@@ -9,10 +9,10 @@
     <div class="basic-outer pad-top-0" v-if="tabNum == 1">
       <el-form ref="form" :model="form" :rules="rules" label-position="left" label-width="100px">
         <el-form-item label="基础对象：" prop="tableName" class="is-required">
-          <el-select v-model="form.objMainId" size="small" @change="getChildCategory" class="category">
+          <el-select v-model="form.objMainId" size="small" @change="getChildCategory" class="category" filterable>
             <el-option v-for="(item, index) in categoryArray" :key="index" :value="item.type" :label="item.tableNote"></el-option>
           </el-select>
-          <el-select v-model="form.tableName" size="small" class="category" @change="changeChild">
+          <el-select v-model="form.tableName" size="small" class="category" @change="changeChild" filterable>
             <el-option v-for="(item, index) in childCategoryArray" :key="index" :value="item.tableName" :label="item.propertyTableName"></el-option>
           </el-select>
         </el-form-item>
@@ -88,12 +88,15 @@
             </el-button>
           </el-form-item>
           <el-form-item label="API类型：" prop="apiType">
+            <div class="height-40-copy">
             <el-checkbox-group v-model="apiTypeList" @change="changeApiTypeList">
               <el-checkbox :label="item.codeExt" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in apiTypeArray" :key="'key0' + index">{{item.name}}</el-checkbox>              
             </el-checkbox-group>
+            </div>
           </el-form-item>
-          <el-form-item label="对象类型：" prop="basicType">
+          <el-form-item label="对象类型：" prop="basicType" class="is-required">
             <el-button type="primary" size="mini" @click="chooseBasic">选择对象</el-button>
+            <el-input v-model="form2.basicType" class="hide"></el-input>
             <span class="basic-span" v-for="(item, index) in chooseTypeArray" :key="index">{{item.tableNote}} <i class="el-icon-close" @click="closeBasic(item, index)"></i></span>
           </el-form-item>
           <el-form-item label="API简介：" prop="apiShortDescription">
@@ -102,10 +105,12 @@
           <el-form-item label="功能介绍：" prop="apiDescription">
             <el-input type="textarea" size="mini" class="radius" placeholder="请输入功能介绍" v-model="form2.apiDescription" maxlength="800"></el-input>
           </el-form-item>
+          <template v-if="delImgVisible">
           <div class="img-preview" v-for="(n, index) in imgList" :key="index" :data-index="index">
             <img @click="preview($event)" :src="n.url"/>
-            <i class="el-icon-error img-close" @click="delImg" v-if="delImgVisible"></i>
+            <i class="el-icon-error img-close" @click="delImg"></i>
           </div>
+        </template>
         </div>
       </div>
 
@@ -132,6 +137,8 @@
       </div>
     </el-form>
   </div>
+
+  
 
   <div class="btn-outer" v-if="tabNum == 1">
     <el-button type="primary" @click="addBasic">生成API详情</el-button>
@@ -231,7 +238,7 @@
       <div class="basic-list">
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.codeExt" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -259,6 +266,7 @@
     },
     data() {
       return {
+        switchFlag: false,
         previewVisible: false,
         delImgVisible: false,
         showBasic: false, // 显示、隐藏基础对象选择框
@@ -380,7 +388,7 @@
             {required: true, message: '请选择API类型', trigger: 'blur'}
           ],
           basicType: [
-            {required: true, message: '请选择对象类型', trigger: 'blur'}
+            {validator: this.checkBasicType, trigger: 'change'}
           ],
           apiShortDescription: [
             {required: true, message: '请输入API简介', trigger: 'blur'}
@@ -421,6 +429,14 @@
         })
       },
       getChildCategory() {
+         //去掉全选样式
+        this.checkAllParam = false
+        this.isIndeterminate = false
+        this.checkAllResponseParam = false
+        this.isRespIndeterminate = false
+
+        this.switchFlag = true
+
         let param = {
           categoryType: this.form.objMainId
         }
@@ -432,7 +448,21 @@
         })
       },
       changeChild() {
+        //去掉全选样式
+        this.checkAllParam = false
+        this.isIndeterminate = false
+        this.checkAllResponseParam = false
+        this.isRespIndeterminate = false
+        
+
         this.changeFlag = true
+        this.switchFlag = true
+        //清空接口参数、返回参数
+        this.requestParam = []
+        this.respParam = []
+        this.form.interfaceParameter = ''
+        this.form.returnParameter = ''
+
         let param = {
           propertyTable: this.form.tableName
         }
@@ -473,9 +503,12 @@
         })
         let arr = JSON.parse(JSON.stringify(this.requestParamArray))
 
-        this.form.interfaceParameter = this.requestParamArray.map(v => {
+        this.form.interfaceParameter = this.requestParamArray.filter( ele => {
+          return ele.checked
+        }).map(v => {
           return v.word
         }).join()
+
 
         this.requestParamArray = []
         this.$nextTick(() => {
@@ -551,9 +584,10 @@
         }
       },
       checkParam2(rule, value, callback) {
-        if (this.respParam.length == 0) {
+        if (this.respParam.length == 0 && !this.switchFlag) {
           callback(new Error('请选择返回参数'))
         } else {
+          this.switchFlag = false
           callback()
         }
       },
@@ -828,14 +862,22 @@
         this.showBasic = false
         this.chooseTypeArray = []
         this.basicTypeArray.forEach(v => {
-          if (this.basicTypeList.indexOf(v.codeExt) > -1) {
+          if (this.basicTypeList.indexOf(v.type) > -1) {
             this.chooseTypeArray.push(v)
           }
         })
       },
       closeBasic(data, index) {
         this.chooseTypeArray.splice(index, 1)
-        this.basicTypeList.splice(this.basicTypeList.indexOf(data.codeExt), 1)
+        this.basicTypeList.splice(this.basicTypeList.indexOf(data.type), 1)
+        this.form2.basicType = this.basicTypeList.join()
+      },
+      checkBasicType(rule, value, callback) {
+        if(this.basicTypeList.length > 0) {
+          callback()
+        } else {
+          callback(new Error ('请选择对象类型'))
+        }
       }
     }
   }

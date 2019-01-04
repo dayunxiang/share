@@ -4,14 +4,19 @@
     <div class="dict-tree">
       <p class="title">
         <span>数据类型</span>
-        <span class="add-btn" @click="addType">+</span>
+        <!-- <span class="add-btn" @click="addType">+</span> -->
+      </p>
+      <p class="oper">
+       <a  @click="addType(dictItem)" class="status-blue">添加<span class="btn-space"></span></a>
+       <a  @click="editType(dictItem)" class="status-blue">修改<span class="btn-space"></span></a>
+       <a  @click="deleteType(dictItem)" class="status-error">删除</a>
       </p>
       <div class="scroll-hide">
         <ul class="dict-list">
-          <li v-for="item in dictTypeList" :key="item.id" :class="{active: item.actived}" @click="changeDictType(item)">
+          <li v-for="item in dictTypeList" :key="item.id" :class="{active: item.actived}" @click="changeDictType(item)" :title="item.value">
             <span>
               {{item.value}}
-              <small @click.stop="deleteType(item)">X</small>
+              <!-- <small @click.stop="deleteType(item)"><i class="el-icon-close"></i></small> -->
             </span>
           </li>
         </ul>
@@ -22,6 +27,7 @@
         <el-button size="mini" class="operateBtn" @click="addDict"><i class="iconfont  icon-tianjiazidian_huaban"></i> 添加</el-button>
         <el-button size="mini" class="operateBtn" @click="changeStatus(0)"><i class="iconfont  icon-jinyongzidian_huaban"></i> 禁用</el-button>
         <el-button size="mini" class="operateBtn" @click="changeStatus(1)"><i class="iconfont  icon-qiyongzidian_huaban"></i> 启用</el-button>
+        <el-button size="mini" class="operateBtn" @click="delDict()"><i class="iconfont icon-shanchu_huaban"></i> 删除</el-button>
       </p>  
       <el-table :data="list" @selection-change="selectChange"  border >
         <el-table-column fixed type="selection" width="40"></el-table-column>
@@ -38,45 +44,63 @@
         <el-table-column prop="lastOperationDate" label="最后操作时间" width="180"></el-table-column>
         <el-table-column prop="" label="操作" width="120">
            <template slot-scope="scope">
-             <a @click="dictDetail(scope.row)">查看<span class="btn-space"></span></a>
-             <a @click="editDict(scope.row)">修改</a>
+             <a @click="dictDetail(scope.row)">查看<span class="btn-space"></span></a><a @click="editDict(scope.row)">修改</a>
            </template>
         </el-table-column>
       </el-table>
+
+      <div class="footerPage">
+        <span></span>
+        <div class="rightPage">
+          <el-pagination
+            background
+            @current-change="handleCurrentChange"
+            :current-page.sync="page.page"
+            :page-size="page.size"
+            layout="total, prev, pager, next, jumper"
+            :total="total">
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
-    <el-dialog :visible.sync="showDictType" title="新增类型" :append-to-body="true" width="500px">
-      <el-form :model="addTypeForm" :rules="addTypeRules" ref="addTypeForm" label-width="100px">
-        <el-form-item label="类型名称：" prop="value">
-          <el-input size="mini" v-model="addTypeForm.value"></el-input>
-        </el-form-item>
-        <el-form-item label="类型编码：" prop="code">
-          <el-input size="mini" v-model="addTypeForm.code"></el-input>
-        </el-form-item>
-        <div class="dialog-footer">
-          <el-button type="primary" size="small" @click="ensure">确定</el-button>
-          <el-button  size="small" @click="cancel">取消</el-button>
-        </div>
-      </el-form>
-    </el-dialog>
-
-    <el-dialog :visible.sync="showDict" :title="dictTitle" :append-to-body="true" width="500px">
-      <el-form :model="addDictForm" :rules="addDictRules" ref="addDictForm" label-width="100px">
-        <el-form-item label="所属类型：" >
-          {{dictType}}
-        </el-form-item>
-        <el-form-item label="名称：" prop="name">
-          <el-input size="mini" v-model="addDictForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="说明：" prop="note">
-          <el-input size="mini" type="textarea" v-model="addDictForm.note" :rows="4"></el-input>
-        </el-form-item>
-        <div class="dialog-footer">
-          <el-button type="primary" size="mini" @click="doAdd">确定</el-button>
-          <el-button  size="mini" @click="cancel2">取消</el-button>
-        </div>
-      </el-form>
-    </el-dialog>
+   
+      <el-dialog :visible.sync="showDictType" :title="dictTypeTitle" :append-to-body="true" width="500px">
+        <el-form :model="addTypeForm" :rules="addTypeRules" ref="addTypeForm" label-width="100px">
+          <el-form-item label="类型名称：" prop="value">
+            <el-input size="mini" v-model="addTypeForm.value"></el-input>
+          </el-form-item>
+          <el-form-item label="类型编码：" prop="code">
+            <el-input size="mini" v-model="addTypeForm.code"></el-input>
+          </el-form-item>
+          <div class="dialog-footer">
+            <el-button type="primary" size="small" @click="ensure">确定</el-button>
+            <el-button  size="small" @click="cancel">取消</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+   
+    
+   
+      <el-dialog :visible.sync="showDict" :title="dictTitle" :append-to-body="true" width="500px">
+        <el-form :model="addDictForm" :rules="addDictRules" ref="addDictForm" label-width="100px">
+          <el-form-item label="所属类型：" >
+            {{dictType}}
+          </el-form-item>
+          <el-form-item label="名称：" prop="name">
+            <el-input size="mini" v-model="addDictForm.name"></el-input>
+          </el-form-item>
+          <el-form-item label="说明：" prop="note">
+            <el-input size="mini" type="textarea" v-model="addDictForm.note" :rows="4"></el-input>
+          </el-form-item>
+          <div class="dialog-footer">
+            <el-button type="primary" size="mini" @click="doAdd">确定</el-button>
+            <el-button  size="mini" @click="cancel2">取消</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+    
+    
 
     <el-dialog :visible.sync="showDetail" title="字典详情" :append-to-body="true" width="500px">
       <el-form :model="detailForm"  ref="detailForm" label-width="100px">
@@ -98,7 +122,7 @@
 </template>
 
 <script>
-  import {getDictList, getDictDetailList, addDictType, deleteDictType, addDictDetail, changeDictStatus, editDictDetail } from '@/api/dict/index';
+  import {getDictList, getDictDetailList, addDictType, editDictType, deleteDictType, addDictDetail, changeDictStatus, editDictDetail, delDictDetail } from '@/api/dict/index';
   export default {
     name: 'dictManager',
     components: {
@@ -121,6 +145,8 @@
     },
     data() {
       return {
+        dictTypeTitle: '',
+        dictItem: {},
         total: 0,
         tabNum: 1,
         list: [],
@@ -195,6 +221,7 @@
         })
       },
       changeDictType(data) {
+        this.dictItem = data
         let newIndex = -1
         let oldIndex = -1
         this.dictTypeList.forEach((v, index) => {
@@ -214,6 +241,7 @@
         }
         getDictDetailList(param).then(resp => {
           this.list = resp.data.list
+          this.total = resp.data.list.length
         })
         this.dictType = data.value
         this.dictCode = data.code
@@ -227,7 +255,6 @@
             tabNum: this.tabNum
           }
         })
-        
       },
       changeTab(num) {
         this.tabNum = num
@@ -237,10 +264,26 @@
       },
       addType() {
         this.showDictType = true
+        this.dictTypeTitle = '新增数据类型'
+        if(this.$refs.addTypeForm != undefined) {
+          this.$refs.addTypeForm.resetFields()
+        }
+      },
+      editType() {
+        this.showDictType = true
+        this.dictTypeTitle = '修改数据类型'
+        this.addTypeForm = JSON.parse(JSON.stringify(this.dictItem))
       },
       addDict() {
         this.dictTitle = '新增字典'
         this.showDict = true
+
+        if(this.$refs.addDictForm != undefined) {
+          
+          this.$refs.addDictForm.resetFields()
+          this.addDictForm = {}
+
+        }
       },
       editDict(data) {
         this.dictTitle = '修改字典'
@@ -250,22 +293,42 @@
       ensure() {
         this.$refs.addTypeForm.validate(valid => {
           if (valid) {
-            addDictType(this.addTypeForm).then(resp => {
-              if (resp.code == 200) {
-                this.$message({
-                  type: 'success',
-                  message: '新增成功'
-                })
-                this.$refs.addTypeForm.resetFields()
-                this.showDictType = false
-                this.getDictType()
-              } else {
-                this.$message({
-                  type: 'error',
-                  message: resp.message
-                })
-              }
-            })
+            if(this.dictTypeTitle == '新增数据类型') {
+              addDictType(this.addTypeForm).then(resp => {
+                if (resp.code == 200) {
+                  this.$message({
+                    type: 'success',
+                    message: '新增成功'
+                  })
+                  this.$refs.addTypeForm.resetFields()
+                  this.showDictType = false
+                  this.getDictType()
+                } else {
+                  this.$message({
+                    type: 'error',
+                    message: resp.message
+                  })
+                }
+              })
+            } else if(this.dictTypeTitle == '修改数据类型') {
+              let param = Object.assign({},{id: this.dictItem.id}, this.addTypeForm)
+              editDictType(param).then(resp => {
+                if (resp.code == 200) {
+                  this.$message({
+                    type: 'success',
+                    message: '修改成功'
+                  })
+                  this.$refs.addTypeForm.resetFields()
+                  this.showDictType = false
+                  this.getDictType()
+                } else {
+                  this.$message({
+                    type: 'error',
+                    message: resp.message
+                  })
+                }
+              })
+            }
           }
         })
       },
@@ -348,13 +411,21 @@
       },
       handleCurrentChange(page) {
         this.page.page = page
-        this.getList()
+        let param = {
+          dicCode: this.dictCode,
+          page: 1,
+          size: 10
+        }
+        getDictDetailList(param).then(resp => {
+          this.list = resp.data.list
+          this.total = resp.data.list.length
+        })
       },
       selectChange(val) {
         this.selection = val
       },
       deleteType(data) {
-        this.$confirm('确认删除改数据类型？', '删除', {
+        this.$confirm('确认删除该数据类型？', '删除', {
           cancelButtonClass: 'btn-custom-cancel'
         }).then(() => {
           deleteDictType(data.id).then(resp => {
@@ -376,6 +447,46 @@
       dictDetail(data) {
         this.showDetail = true
         this.detailForm = data
+      },
+      delDict() {
+        if (this.selection.length == 0) {
+          this.$message({
+            type: 'warning',
+            message: '请勾选数据'
+          })
+          return false
+        }
+        this.$confirm('确认删除该字典', '删除', {
+          cancelButtonClass: 'btn-custom-cancel'
+        }).then(() => {
+          let param = {
+            ids: this.selection.map(v => {
+              return v.id
+            }).join()
+          }
+          delDictDetail(param.ids).then(resp => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              //this.showDict = false
+                let dictParam = {
+                dicCode: this.dictCode,
+                page: 1,
+                size: 10
+              }
+              getDictDetailList(dictParam).then(resp => {
+                this.list = resp.data.list
+              })
+            } else {
+              this.$message({
+                type: 'error',
+                message: resp.message
+              })
+            }
+          })
+        })
       },
       changeStatus(status) {
         if (this.selection.length == 0) {
@@ -434,6 +545,13 @@
   }
   .dialog-footer{
     text-align: right;
+  }
+  .status-blue:hover {
+    color: #19d1f2;
+    text-decoration: underline;
+  }
+  .status-error:hover {
+    text-decoration: underline;
   }
  
 </style>

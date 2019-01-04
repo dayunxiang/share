@@ -73,6 +73,29 @@ export function mark(obj) {
   })
 }
 
+// 预警 返回账号绑定号码
+export function getBindTel() {
+  return fetch({
+    url:'/manage/warn/mobile/mobile',
+    method: 'get'
+  })
+}
 
+// 设置预警
+export function setBindTel(obj) {
+  return fetch({
+    url:'/manage/my/api/warned',
+    method: 'post',
+    data: obj
+  })
+}
+
+// 查看预警
+export function getBindTelDetail(id) {
+  return fetch({
+    url:'/manage/warn/' + id,
+    method: 'get'
+  })
+}
 
 

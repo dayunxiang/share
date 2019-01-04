@@ -2,10 +2,10 @@
   <div class="front-index">
     <div class="front-main">
       <div class="basic-outer">
-        <el-form ref="form" label-position="left" label-width="82px">
-          <div class="flex-box">
-            <span class="red">*</span>
-            <el-form-item label="数据类型：" prop="categoryId">
+        <el-form ref="form" label-position="left" label-width="100px">
+          <!-- <div class="flex-box"> -->
+            <!-- <span class="red">*</span> -->
+            <el-form-item label="数据类型：" prop="categoryId" class="is-required">
               <el-select  v-model="form.categoryId" size="mini" class="width-300" disabled>
                 <el-option v-for="item in bigCatesArr" :label="item.tableNote" :value="item.type" :key="item.id"></el-option>
               </el-select>
@@ -13,10 +13,10 @@
                 <el-option v-for="item in propertyTableArr" :label="item.propertyTableName" :value="item.tableName" :key="item.id"></el-option>
               </el-select>
             </el-form-item>
-          </div>
-          <div class="flex-box">
-            <span class="red mr-4">*</span>
-            <el-form-item label="字段：" prop="checkedFileds">
+          <!-- </div> -->
+          <!-- <div class="flex-box"> -->
+            <!-- <span class="red mr-4">*</span> -->
+            <el-form-item label="字段：" prop="checkedFileds" class="is-required">
               <div class="field-color" v-if="form.propertyTableId">
                 <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange" disabled>全选</el-checkbox>
                 <el-checkbox-group v-model="form.checkedFileds" disabled>
@@ -27,7 +27,7 @@
                 </el-checkbox-group>
               </div>
             </el-form-item>
-          </div>
+          <!-- </div> -->
         </el-form>
       </div>
       <div class="btn-outer"></div>

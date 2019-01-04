@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="page-title">我的收藏</div>
-    <div class="center-outer main-container height-100vh">
+    <div class="center-outer main-container  pt-collect" :class="collectList.length == 0 ? 'height-100vh' : ''">
       <el-row :gutter="30" class="collect-outer">
         <template>
           <el-col :lg="6" :md="8" v-if="collectList.length > 0" v-for="(item, index) in collectList" :key="index">
@@ -9,8 +9,9 @@
               <img :src="defaultUrl" v-if="!item.filePath"/>
               <img :src="item.filePath" v-if="item.filePath"/>
               <div class="detail">
-                <p v-if="item.payStandard" class="mb20"><span class="price">{{item.payStandard}}</span>水利币/次</p>
-                <p v-if="!item.payStandard" class="mb20"><span class="status-success">免费</span></p>
+                <p v-if="item.payStandard == '0.00'" class="mb20"><span class="status-success">免费</span></p>
+                <p v-if="item.payStandard != '0.00'" class="mb20"><span class="price">{{item.payStandard}}</span>水利币/次</p>
+                
                 <p class="title">{{item.apiName}}</p>
         
               </div>
@@ -21,7 +22,11 @@
           </el-col>
         </template>
         <template v-if="collectList.length == 0">
-          <div>你还没有收藏任何数据呢，<span class="color" @click="toApi">去看看吧！</span></div>
+          <div class="align-center">
+            <div>你还没有收藏任何数据呢，<span class="color" @click="toApi">去看看吧！</span></div>
+            <img :src="noCollect">
+          </div>
+          
         </template>
       </el-row>
       <div class="footerPage" v-if="collectList.length > 0">
@@ -54,6 +59,7 @@
         total: 0,
         priceUrl: require('@/assets/images/price2.png'),
         defaultUrl: require('@/assets/images/default.png'),
+        noCollect: require('@/assets/images/no-collect.png'),
         collectList: [],
         form: {
 
@@ -78,6 +84,7 @@
         })
       },
       apiDetail(data) {
+        sessionStorage.setItem('tabNum', 2)
         this.$router.push({
           name: 'apiDetail',
           query: {
@@ -106,7 +113,7 @@
       },
       toApi() {
         this.$router.push({
-          path: '/index'
+          path: '/api'
         })
       },
       handleCurrentChange(page) {//分页

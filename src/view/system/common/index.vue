@@ -9,7 +9,7 @@
 
 
       <div class="btn-box" v-if="tabNum == 1">
-        <el-button size="mini" class="operateBtn" @click="addRecord">添加联系人</el-button>
+        <el-button size="mini" class="operateBtn" @click="addRecord"><i class="iconfont icon-tianjialianxiren_huaban"></i> 添加联系人</el-button>
       </div>
       <el-table :data="list"  border v-show="tabNum == 1">
         <el-table-column  type="index" width="50" label="序号" fixed></el-table-column>
@@ -80,7 +80,7 @@
       <el-button size="mini" @click="cancelMoney">取消</el-button>
     </div>
 
-    <el-dialog title="添加联系人" :visible="showMoney" width="400px" :append-to-body="true" @close="cancel">
+    <el-dialog title="添加联系人" :visible="showMoney" width="500px" :append-to-body="true" @close="cancel">
        <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px">
         
          <el-form-item label="对象：">
@@ -206,7 +206,8 @@
         this.grantTime = []
       },
       changeStatus(data, type) {
-        let confirMsg = type == 1 ? '确认启用该配置？' : (type == 2 ? '确认禁用该配置？' : '确认删除该配置？')
+        let confirMsg = type == 1 ? '确认启用该联系人？' : (type == 2 ? '确认禁用该联系人？' : '确认删除该联系人？')
+        let info = type == 1 ? '启用成功' : (type == 2 ? '禁用成功' : '删除成功')
         this.$confirm(confirMsg, '确认', {
           cancelButtonClass: 'btn-custom-cancel'
         }).then(() => {
@@ -218,7 +219,7 @@
             if (resp.code == 200) {
               this.$message({
                 type: 'success',
-                message: '处理成功'
+                message: info
               })
               this.getList()
             } else {
@@ -296,10 +297,11 @@
               if (resp.code == 200) {
                 this.$message({
                   type: 'success',
-                  message: '发放成功'
+                  message: '添加成功'
                 })
                 this.$refs.addForm.resetFields()
                 this.showMoney = false
+                this.getList()
               } else {
                 this.$message({
                   type: 'error',
@@ -316,7 +318,7 @@
       resetMoney(formName) {
         this.$refs.form2.validate((valid) => {
           if (valid) {
-            this.$confirm('确定更新定价？', '确定', {
+            this.$confirm('确认更新定价？', '确认', {
               cancelButtonClass: 'btn-custom-cancel'
             }).then(() => {
               if (this.tabNum == 2) {

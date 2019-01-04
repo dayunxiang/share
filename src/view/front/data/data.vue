@@ -34,20 +34,21 @@
         </div>
 
         <div class="api-condition">
-          <div class="api api-custom" >
+          <div class="api api-custom" v-if="page.page == 1">
             <img :src="customUrl" /><br/>
             <span class="api-name white-color">基础数据订制</span><br/>
-            <el-button type="primary" class="btn custom-btn" @click="basicAPi()">免费订制</el-button>
+            <el-button type="primary" class="btn custom-btn" @click="basicAPi()">立即订制</el-button>
           </div>
-          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.name">
-            <img :src="defaultUrl" v-if="!item.filePath"/>
-            <img :src="item.filePath" v-if="item.filePath"/><br/>
+          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.shortDescription" @click="dataDetail(item)">
+            <img :src="defaultUrl" v-if="!item.picPath"/>
+            <img :src="item.picPath" v-if="item.picPath"/><br/>
             <span class="new" v-if="item.isNew">NEW</span>
+            <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
             <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
             <span class="free" v-if="item.isFree == '0'">免费</span><br/>
             <span class="api-name">{{item.name.substring(0, 10)}}</span>
             
-            <el-button type="primary" class="btn" @click="dataDetail(item)">免费订制</el-button>
+            <el-button type="primary" class="btn" @click="dataDetail(item)">立即下载</el-button>
           </div>
 
         </div>
@@ -70,12 +71,31 @@
 <script>
   import {getDataList} from '@/api/front/index'
   import {getApiTypeArray} from '@/api/api/index'
+  import { getToken } from '@/utils/auth'
   export default {
     components: {
     },
     mounted() {
+      if (this.$store.state.app.searchDataName) {
+        this.form.name = this.$store.state.app.searchDataName
+        this.$store.state.app.searchDataName = ''
+      }
       this.getList()
       this.getApiType()
+    },
+    computed: {
+      searchName() {
+        return this.$store.state.app.searchDataName
+      }
+    },
+    watch: {
+      searchName(val) {
+        if (val) {
+          this.form.name = val
+          this.getList()
+          this.$store.state.app.searchDataName = ''
+        }
+      }
     },
     data() {
       return {
@@ -83,6 +103,7 @@
         searchUrl: require('@/assets/images/api-search.png'),
         defaultUrl: require('@/assets/images/default.png'),
         customUrl: require('@/assets/images/api-custom.png'),
+        priceUrl: require('@/assets/images/price2.png'),
         form: {
           type: '',
           sort: '1',
@@ -187,9 +208,14 @@
         this.getList()
       },
       basicAPi() {
-        this.$router.push({
-          name: 'addBaseData'
-        })
+        if(getToken()) {
+          this.$router.push({
+            name: 'addBaseData'
+          })
+        } else {
+          this.$store.state.app.loginFlag = true
+        }
+        
       }
     }
   }

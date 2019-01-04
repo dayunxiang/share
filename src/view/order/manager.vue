@@ -40,8 +40,8 @@
       <el-table :data="list" border >
         <el-table-column  type="index" width="50" label="序号"></el-table-column>
         <el-table-column label="标题" prop="title"  :show-overflow-tooltip="true" class-name="first-column"></el-table-column>
-        <el-table-column label="申请部门" prop="acceptDepartment"  ></el-table-column>
-        <el-table-column label="申请人" prop="acceptor" ></el-table-column>
+        <el-table-column label="申请部门" prop="applicantDepartment"  ></el-table-column>
+        <el-table-column label="申请人" prop="applicant" ></el-table-column>
         <el-table-column label="申请时间" prop="applicantDate"  ></el-table-column>
         <el-table-column label="状态" prop="status"  :show-overflow-tooltip="true" width="100">
           <template slot-scope="scope">

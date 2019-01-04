@@ -44,26 +44,26 @@
   <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
     <el-form :model="form" :rules="rules" ref="form" label-width="110px">
       <el-form-item label="资源编码" prop="code">
-        <el-input v-model="form.code" placeholder="请输入资源编码"></el-input>
+        <el-input v-model="form.code" placeholder="请输入资源编码" size="small"></el-input>
       </el-form-item>
       <el-form-item label="资源类型" prop="type">
-        <el-select class="filter-item" v-model="form.type" placeholder="请输入资源类型">
+        <el-select class="filter-item" v-model="form.type" placeholder="请输入资源类型" size="small">
           <el-option v-for="item in  typeOptions" :key="item" :label="item" :value="item"> </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="资源名称" prop="name">
-        <el-input v-model="form.name" placeholder="请输入资源名称"></el-input>
+        <el-input v-model="form.name" placeholder="请输入资源名称" size="small"></el-input>
       </el-form-item>
       <el-form-item label="资源地址" prop="uri">
-        <el-input v-model="form.uri" placeholder="请输入资源地址"></el-input>
+        <el-input v-model="form.uri" placeholder="请输入资源地址" size="small"></el-input>
       </el-form-item>
       <el-form-item label="资源请求类型" prop="method">
-        <el-select class="filter-item" v-model="form.method" placeholder="请输入资源请求类型">
+        <el-select class="filter-item" v-model="form.method" placeholder="请输入资源请求类型" size="small">
           <el-option v-for="item in  methodOptions" :key="item" :label="item" :value="item"> </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="资源描述" prop="description">
-        <el-input v-model="form.description" placeholder="请输入资源描述"></el-input>
+        <el-input v-model="form.description" placeholder="请输入资源描述" size="small"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

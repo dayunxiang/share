@@ -16,10 +16,16 @@ const app = {
         title: '我的共享'
       },
     }],
-    cacheList: [],
+    cacheList: ['shareCenter'],
     menus: [], //菜单
     loginFlag: false, //弹框登录标识
-    msgCount: 0 //消息数量
+    msgCount: 0, //消息数量
+    refreshIndex: false,//首页模块切换标识
+    searchApiName: '', //api首页查询条件
+    searchDataName: '', //数据首页查询条件
+    searchDocName: '', //文档首页查询条件
+    tabCount: 1,//header默认选中位置
+    lastLogin: {},//弹出登录框时点击的路由
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {

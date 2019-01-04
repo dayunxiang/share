@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<div class="page-title">我的数据</div>
-		<div class="main-container">
+		<div class="main-container pt-twoline">
 			<div class="mar-20">
 				<api-search  @search="search"></api-search>
 				<div>
 					<el-table border :data="list">
 						<el-table-column type="index" label="序号" width="50" fixed></el-table-column>
-						<el-table-column label="数据" prop="name" class-name="first-column"></el-table-column>
+						<el-table-column label="数据名称" prop="name" class-name="first-column"></el-table-column>
 						<el-table-column label="购买时间" prop="boughtDate"></el-table-column>
 						<el-table-column label="价格（水利币）" prop="price">
 							<template slot-scope="scope">
@@ -17,7 +17,7 @@
 						</el-table-column>
 						<el-table-column label="操作" width="120">
 							<template slot-scope="scope">
-								<el-button type="text" @click="toDetail(scope.row)">下载</el-button>
+								<a  @click="toDetail(scope.row)">下载</a>
 							</template>
 						</el-table-column>
 					</el-table>
@@ -74,30 +74,38 @@
         this.getList()
       },
       toDetail(row) {
-      	if(row.businessOrNormal == 1) {
-      		this.$router.push({
-            name: 'dataDetail',
-            query: {
-              id: row.dataId,
-              businessOrNormal: 1
-            }
-          })
-      	} else if(row.businessOrNormal == 2) {
-      		this.$router.push({
-            name: 'dataDetail',
-            query: {
-              id: row.dataId,
-              businessOrNormal: 2
-            }
-          })
+      	sessionStorage.setItem('tabNum', 3)
+      	if(row.status == '0') {
+      		this.$message({
+              type: 'error',
+              message: '数据已停用'
+            })
+      	} else {
+      			if(row.businessOrNormal == 1) {
+		      		this.$router.push({
+		            name: 'dataDetail',
+		            query: {
+		              id: row.dataId,
+		              businessOrNormal: 1
+		            }
+		          })
+		      	} else if(row.businessOrNormal == 2) {
+		      		this.$router.push({
+		            name: 'dataDetail',
+		            query: {
+		              id: row.dataId,
+		              businessOrNormal: 2
+		            }
+		          })
 
-      	} else if(row.businessOrNormal == 3) {
-      		this.$router.push({
-            name: 'personBaseDetail',
-            query: {
-              id: row.dataId
-            }
-          })
+		      	} else if(row.businessOrNormal == 3) {
+		      		this.$router.push({
+		            name: 'personBaseDetail',
+		            query: {
+		              id: row.dataId
+		            }
+		          })
+		      	}
       	}
       },
       handleCurrentChange(page) {

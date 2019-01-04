@@ -2,7 +2,7 @@
   <div>
     <div class="page-title">用户管理</div>
 
-    <div class="main-container">
+    <div class="main-container pt-oneline">
 
       <el-row class="searchBar">
         <div>

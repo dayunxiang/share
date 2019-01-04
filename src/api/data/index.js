@@ -114,7 +114,7 @@ export function submitBase(obj) {
 //业务数据条件(列表)查询
 export function getBizList(obj) {
   return fetch({
-    url: 'data/business/data/query',
+    url: '/data/business/data/query',
     method: 'post',
     data: obj
   })

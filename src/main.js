@@ -17,6 +17,7 @@ import echarts from 'echarts'
 
 import './assets/fontAwesome/css/font-awesome.min.css'
 import './assets/fontJH/iconfont.css'
+import './assets/fontJH2/iconfont.css'
 import  commonFunc from './api/common/index'  //公共方法
 
 Vue.use(ElementUI)

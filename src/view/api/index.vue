@@ -243,6 +243,7 @@
         }
       },
       apiDetail(row) {
+        sessionStorage.setItem('tabNum', 2)
         if (this.tabNum == 2) {
           this.$router.push({
             name: 'apiDetail',
@@ -252,7 +253,7 @@
           })
         } else {
           this.$router.push({
-            name: 'basicDetail',
+            name: 'commonBasic',
             query: {
               id: row.id
             }

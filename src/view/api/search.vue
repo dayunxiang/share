@@ -34,9 +34,9 @@
         </div> 
       </el-row>
        <div class=" box left-btn-box search-box">
-          <el-button size="mini"  class="operateBtn" @click="addApi" v-if="tabNum == '2'"><i class="iconfont icon-fabushuju_huaban"></i> 发布</el-button>
+          <el-button size="mini"  class="operateBtn" @click="addApi" v-if="tabNum == '2'"><i class="iconfont icon-APIfabu_huaban"></i> 发布</el-button>
           <el-button size="mini"  class="operateBtn" @click="addApi" v-if="tabNum == '1'"><i class="iconfont icon-APIchuangjian_huaban"></i> 创建</el-button>
-          <el-button size="mini" class="operateBtn" v-if="tabNum == 2"><a href="../static/template/API详情填写模板.xlsx"><i class="iconfont icon-xiazaimoban_huaban"></i> 下载模版</a></el-button>
+          <el-button size="mini" class="operateBtn" v-if="tabNum == 2"><a href="../static/template/API详情填写模板.xlsx"><i class="iconfont icon-APIxiazai_huaban"></i> 下载模版</a></el-button>
           <el-button size="mini" class="operateBtn" @click="removeApi"><i class="iconfont icon-shanchu_huaban"></i> 删除</el-button>
         </div>
     </div>

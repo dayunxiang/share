@@ -4,8 +4,8 @@
       <div class="front-main">
         <div class="api-detail">
           <div class="api-img">
-            <img :src="defaultUrl" v-if="!data.filePath"/>
-            <img :src="data.filePath" v-if="data.filePath"/>
+            <img :src="defaultUrl" v-if="!data.picPath"/>
+            <img :src="data.picPath" v-if="data.picPath"/>
             <span class="count">
               <span class="count-detail">
                 <img :src="starUrl"/><br/>
@@ -13,7 +13,7 @@
               </span>
               <span class="border"></span>
               <span class="count-detail">
-                <img :src="watchUrl" style="height: 14px;"/><br/>
+                <img :src="downloadUrl" style="height: 14px;"/><br/>
                 <small>{{data.downloadTimes}}</small>
               </span>
             </span>
@@ -33,9 +33,10 @@
               <el-button type="primary" @click="bookOrRenew">
                 立即下载
               </el-button>
-              <el-button  @click="collectData"  v-if="data.isCollection == '0'">
-                <img :src="starUrl2"/>
-                收藏
+               <el-button  @click="collectData">
+                <img :src="starUrl2" v-if="data.isCollection == 0"/>
+                <img :src="starUrl3" v-if="data.isCollection == 1"/>
+                {{ data.isCollection == 1 ? '取消收藏' : '收藏' }}
               </el-button>
             </p>
           </div>
@@ -82,6 +83,7 @@
   import { getUserInfoDetail } from '@/api/share/index'
   import {download,download2} from '@/api/common/common'
   import { getToken } from '@/utils/auth';
+  import { cancelCollect } from '@/api/market/index'
   export default {
     components: {
     },
@@ -133,7 +135,8 @@
         starUrl2: require('@/assets/images/star2.png'),
         starUrl3: require('@/assets/images/star3.png'),
         watchUrl: require('@/assets/images/watch.png'),
-        priceUrl: require('@/assets/images/price2.png')
+        priceUrl: require('@/assets/images/price2.png'),
+        downloadUrl: require('@/assets/images/doc_download.png')
       }
     },
     methods: {
@@ -184,20 +187,38 @@
           dataId: this.dataId,
           businessOrNormal: this.businessOrNormal
         }
-        addDataCollection(param).then((resp) => {
-          if (resp.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '收藏成功'
-            })
-            this.getDetail()
-          } else {
-            this.$message({
-              type: 'error',
-              message: resp.message
-            })
-          }
-        })
+        if(this.data.isCollection == 0) {
+          addDataCollection(param).then((resp) => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '收藏成功'
+              })
+              this.getDetail()
+            } else {
+              this.$message({
+                type: 'error',
+                message: resp.message
+              })
+            }
+          })
+        } else if(this.data.isCollection == 1){
+          cancelCollect(param.dataId).then(resp => {
+            if (resp.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '取消成功'
+              })
+              this.getDetail()
+            } else {
+              this.$message({
+                type: 'error',
+                message: resp.message
+              })
+            }
+          })
+        }
+        
       },
       bookOrRenew() {
         if (this.businessOrNormal == '2') {
@@ -211,6 +232,7 @@
           beforeBasicDown({id:this.dataId}).then( res => {
             if(res.code == 200) {
               window.location.href = '/webapp/data/form_excel?id=' + this.dataId
+              this.getDetail()
             } else {
               this.$message({
                 type: 'error',
@@ -229,7 +251,7 @@
         this.bookPrice = this.data.payStandard * this.bookCount
       },
       downloadFile(row) {
-        if(this.data.payStandard != 0) {
+        // if(this.data.payStandard != 0) {
           //扣除水利币
           minusWaterMoney({
             id: this.dataId,
@@ -237,6 +259,7 @@
           }).then( res => {
             if(res.code == 200) {
               window.location.href = '/manage/attachment/' + row.attachmentId
+              this.getDetail()
             } else {
               this.$message({
                 type: 'error',
@@ -244,7 +267,7 @@
               })
             }
           })
-        }
+        // }
        
       }
     }

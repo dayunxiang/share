@@ -5,8 +5,8 @@
         <div>
           <el-row :gutter="15">
             <el-col :span="8">
-              <span class="form-label">名称</span>
-              <el-input v-model="form.name" size="mini" class="form-input" maxlength="50" placeholder="请输入名称">
+              <span class="form-label">数据名称</span>
+              <el-input v-model="form.name" size="mini" class="form-input" maxlength="50" placeholder="请输入数据名称">
               </el-input>
             </el-col>
             <el-col :span="8" class="height-28">

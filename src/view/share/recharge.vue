@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="page-title">我的充值记录</p>
-    <div class="center-outer backbg main-container">
+    <div class="center-outer backbg main-container pt-twoline">
       <div class="mar-20">
         <el-table border :data="list">
           <el-table-column label="序号" type="index" width="50" fixed></el-table-column>
