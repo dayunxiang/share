@@ -56,7 +56,14 @@
         this.isCollapse = !this.isCollapse;
       },
       
-      
+    },
+    watch: {
+      refreshMenu(val) {
+        if (val) {
+          this.getMenus()
+          this.$store.state.app.refreshMenu = false
+        }
+      }
     },
     mounted () {
       this.getMenus()
@@ -72,8 +79,10 @@
         } else {
           return []
         }
+      },
+      refreshMenu() {
+        return this.$store.state.app.refreshMenu
       }
-
     }
   }
 </script>

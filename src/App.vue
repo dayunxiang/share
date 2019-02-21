@@ -99,9 +99,27 @@
                 // this.$nextTick(function(){
                 //   this.isRouterAlive = true;
                 // })
-                this.$router.push({
-                  name: this.$store.state.app.lastLogin.name
-                })
+                if (this.$store.state.app.refreshPage) {//页面跳转
+                  if (!this.$route.meta.access) {//后台登录失效重新登录，刷新菜单
+                    this.$store.state.app.refreshMenu = true
+                  }
+                  if (this.$store.state.app.routeType != 'path') {
+                    this.$router.push({
+                      name: this.$store.state.app.lastLogin.name,
+                      params: this.$store.state.app.routeParam
+                    })
+                  } else {
+                    this.$router.push({
+                      name: this.$store.state.app.lastLogin.name,
+                      query: this.$store.state.app.routeParam
+                    })
+                    this.$store.state.app.routeType = 'name'
+                  }
+                
+                } else {
+                  this.$store.state.app.refreshPage = true
+                }
+                this.$store.state.app.refresh = true
               } else {
                 this.$message({
                   type: 'error',

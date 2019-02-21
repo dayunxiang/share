@@ -229,3 +229,18 @@ export function getMapData(form) {
     params: form
   })
 }
+//首页数据查询跳转接口
+export function mapDataTo(form) {
+  return fetch({
+    url:'/webapp/data/conditon',
+    method: 'post',
+    data: form
+  })
+}
+//游客访问记录新增
+export function visitorLog() {
+  return fetch({
+    url:'/manage/visit/log',
+    method: 'post'
+  })
+}

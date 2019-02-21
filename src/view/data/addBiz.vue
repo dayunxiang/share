@@ -92,15 +92,21 @@
         <el-button size="mini" @click="back">返回</el-button>
       </div>
 		</div>
-		<el-dialog title="上传图片" :visible="showUploadImg"  :append-to-body="true" @close="cancel" width="500px">
+		<el-dialog title="上传图片" :visible="showUploadImg"  :append-to-body="true" @close="cancel" width="80%">
       <div>
         <p class="dialog-tab">
           <span :class="defaultImg ? 'active' : ''" @click="changeImgTab(1)">默认图片</span>
           <span :class="!defaultImg ? 'active' : ''" @click="changeImgTab(2)">自定义图片</span>
         </p>
-        <span class="img-outer" v-show="defaultImg">
+        <!-- <span class="img-outer" v-show="defaultImg">
           <img :src="defaultUrl"/>
-        </span>
+        </span> -->
+
+        <div v-show="defaultImg" class="default-con">
+          <span v-for="(item, index) in urlObjArray" :key="index" @click="chooseImg(index)" :class="{'active': item.actived}">
+            <img :src="urlObj[item.url]">{{item.name}}
+          </span>
+        </div>
         <span class="img-outer" v-show="!defaultImg && !fileImg" @click="$refs.imgFile.click()">
           <img :src="fileUrl" style="width: 40px;"/><br/>
           <small>点击上传图片</small>
@@ -122,9 +128,15 @@
     </el-dialog>
     <el-dialog title="对象类型" :visible="showBasic" :append-to-body="true"   @close="cancel" width="600px">
       <div class="basic-list">
+        <p class="filter-con">
+          <label>筛选条件：</label>
+          <span>
+            <el-input v-model="filterVal" size="small"></el-input>
+          </span>
+        </p>
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeFilterArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -196,9 +208,27 @@
         uploadUrl: require('@/assets/images/file.png'),
         defaultUrl: require('@/assets/images/default.png'),
         fileUrl: require('@/assets/images/file2.png'),
+        filterVal: '', //过滤条件
         chooseFileUrl: ''
 			}
-		},
+    },
+    computed: {
+      basicTypeFilterArray() {
+        if (this.filterVal) {
+          return this.basicTypeArray.filter(v => {
+            return v.tableNote.indexOf(this.filterVal) > -1
+          })
+        } else {
+          return this.basicTypeArray
+        }
+      },
+      urlObj() {
+        return JSON.parse(JSON.stringify(this.$store.state.app.urlObj))
+      },
+      urlObjArray() {
+        return JSON.parse(JSON.stringify(this.$store.state.app.urlObjArray))
+      }
+    },
 		created() {
       // getType({ dicCode: 10000001 }).then( res => {
       //   this.typeArray = res.data
@@ -206,6 +236,14 @@
       this.getApiType()
 		},
 		methods: {
+      chooseImg(index) {//选中默认图片
+        this.urlObjArray.forEach(v => {
+          v.actived = false
+        })
+        this.urlObjArray[index].actived = true
+        this.$forceUpdate()
+        this.chooseIndex = index
+      },
       getApiType() {
         getApiTypeArray({type: '2', isChild: '0'}).then(resp => {
           this.typeArray = resp.data
@@ -251,31 +289,66 @@
       uploadImg() {
         this.showUploadImg = true
       },
+      dataURLtoFile(dataurl, filename) {//将base64转换为文件
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+         //return new File([u8arr], filename, {type:mime}) // ie不兼容
+        return new Blob([u8arr], {type:mime})
+      },
       addImg() {
-        if(!this.defaultImg && this.file) {
-          let formData = new FormData()
-          formData.append('file', this.file)
-          uploadFile(formData).then(resp => {
-            if (resp.code == 200) {
+        if (this.defaultImg) {
+          this.file = this.dataURLtoFile(this.urlObj[this.urlObjArray[this.chooseIndex].url], this.urlObjArray[this.chooseIndex].name + '.png')
+          this.file.name = this.urlObjArray[this.chooseIndex].name + '.png'
+        } else {
+          if (this.file == '' || this.file == null || this.file == undefined) {
+            this.$message({
+              type: 'warning',
+              message: '图片不能为空！'
+            })
+            return false
+          }
+          if (this.file.size > 3 * 1024 * 1024) {
+            this.$message({
+              type: 'warning',
+              message: '图片大小不能超过3M！'
+            })
+            return false
+          }
+          let type = this.file.name.substring(this.file.name.lastIndexOf('.') + 1).toLowerCase()
+          let typeArray = ['jpg', 'jpeg', 'tiff', 'raw', 'bmp', 'gif', 'png']
+          if (typeArray.indexOf(type) < 0) {
+            this.$message({
+              type: 'warning',
+              message: '图片格式不正确！'
+            })
+            return false
+          }
+        }
+        let formData = new FormData()
+        formData.append('file', this.file, this.file.name)
+        uploadFile(formData).then(resp => {
+          if (resp.code == 200) {
+            if (!this.defaultImg) {
               this.$message({
                 type: 'success',
                 message: '上传成功'
               })
-              this.imgList[0].url = '/webapp/attachment/' + resp.data.attachmentId
-              this.form.picAttachmentId =  resp.data.attachmentId
-              this.form.picPath = resp.data.attachmentPath
-              this.showUploadImg = false
-              this.delImgVisible = true
-            } else {
-               this.$message({
-                type: 'success',
-                message: resp.message
-              })
             }
-          })
-        } else {
-          this.showUploadImg = false
-        }
+            this.imgList[0].url = '/webapp/attachment/' + resp.data.attachmentId
+            this.form.picAttachmentId =  resp.data.attachmentId
+            this.form.picPath = resp.data.attachmentPath
+            this.showUploadImg = false
+            this.delImgVisible = true
+          } else {
+              this.$message({
+              type: 'success',
+              message: resp.message
+            })
+          }
+        })
         
       },
       changeImgTab(flag) {

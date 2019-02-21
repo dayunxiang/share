@@ -40,19 +40,28 @@
       <el-table :data="list" border v-show="data.permissionType == 1"  class="mar-t-20">
         <el-table-column label="参数名称" prop="title"  class-name="first-column">
           <template slot-scope="scope">
-           <el-select v-model="scope.row.param" size="mini" class="form-input">
+           <el-select v-model="scope.row.parameterName" size="mini" class="form-input" @change="changeParam(scope.row, scope.$index)">
              <el-option v-for="item in paramArray" :label="item.label" :key="item.value" :value="item.value"></el-option>
            </el-select>
           </template>
         </el-table-column>
         <el-table-column label="参数说明" prop="desc" >
           <template slot-scope="scope">
-            {{descObj[scope.row.param]}}
+            {{descObj[scope.row.parameterName]}}
           </template>
         </el-table-column>
         <el-table-column label="数据范围设置" prop="applicant" >
           <template slot-scope="scope">
-            <el-input size="mini" v-model="scope.row.data"></el-input>
+            <el-input size="mini" v-model="scope.row.parameterValue" v-if="typeObj[scope.row.parameterName] != 'DATE' && typeObj[scope.row.parameterName] != 'TIMESTAMP'" maxlength="200"></el-input>
+            <el-date-picker
+                v-model="scope.row.rangeDate"
+                type="daterange"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="changeCreateTime(scope.$index)"
+                v-if="typeObj[scope.row.parameterName] == 'TIMESTAMP' || typeObj[scope.row.parameterName] == 'DATE'"
+                value-format="yyyy-MM-dd" size="mini">
+            </el-date-picker>
           </template>  
         </el-table-column>   
         <el-table-column label=""  width="180">
@@ -72,7 +81,7 @@
 </template>
 
 <script>
-  import {apiLogDetail, authorityParamList, authorityParam} from '@/api/system/index';
+  import {apiLogDetail, authorityParamList, authorityParam, saveAuthority} from '@/api/system/index';
   export default {
     name: 'apiAuthority',
     components: {
@@ -111,12 +120,9 @@
         selection: [],
         paramArray: [
         ],
-        descObj: {
-          '1': '描述1',
-          '2': '描述2'
-        },
-       
-       
+        descObj: {},
+        typeObj: {},
+        idObj: {}
       }
     },
     computed: {
@@ -141,22 +147,36 @@
             res.data.forEach(val => {
               this.descObj[val.name] = val.description
             })
+            res.data.forEach(val => {
+              this.typeObj[val.name] = val.type
+            })
+            res.data.forEach(val => {
+              this.idObj[val.name] = val.id
+            })
           })
           //获取权限设置列表
           authorityParamList({apiAuthorizeCode: resp.data.apiAuthorizeCode}).then(res => {
             this.list = res.data.map(v => {
               return {
-                param: v.parameterName,
-                data: v.parameterValue
+                parameterName: v.parameterName,
+                parameterValue: v.parameterValue,
+                requestParametersId: v.requestParametersId,
+                parameterType: v.parameterType,
+                rangeDate: (v.parameterType == 'DATE' || v.parameterType == 'TIMESTAMP') ? v.parameterValue.split('~') : []
               }
             })
+            if (this.list.length == 0) {
+              this.list = [{}]
+            }
           })
         })
       },
       addArr() {
         let param = {
-          param: '',
-          data: ''
+          parameterName: '',
+          parameterValue: '',
+          requestParametersId: '',
+          parameterType: ''
         }
         this.list.push(param)
       },
@@ -170,13 +190,81 @@
         this.$store.commit('closeTag', 'apiAuthority')
       },
       save() {
-        let param = {
-          
+        //校验数据范围详细设置
+        let paramList = this.list.filter(v => {
+          return (v.parameterName || v.parameterValue)
+        })
+        paramList = paramList.map(v => {
+          return {
+            parameterName: v.parameterName,
+            parameterType: v.parameterType,
+            parameterValue: v.parameterValue,
+            requestParametersId: v.requestParametersId
+          }
+        })
+        if (this.checkParam(paramList) == 'same') {
+           this.$message({
+              type: 'warning',
+              message: '参数名称不能重复'
+            })
+          return false
         }
+        if (this.checkParam(paramList) == 'empty') {
+          this.$message({
+            type: 'warning',
+            message: '参数名称和数据范围设置不能为空'
+          })
+          return false
+        }
+        let param = {
+          id: this.dataId,
+          permissionType: this.data.permissionType,
+          permissionDtoList: this.data.permissionType == '1' ? paramList : []
+        }
+        saveAuthority(param).then(resp => {
+          if (resp.code == 200) {
+            this.$message({
+              type: 'success',
+              message: '保存成功'
+            })
+            this.$router.push({
+              name: 'systemLog'
+            })
+            this.$store.commit('closeTag', 'apiAuthority')
+          } else {
+            this.$message({
+              type: 'error',
+              message: resp.message
+            })
+          }
+        })
+      },
+      checkParam(data) {
+        let result = ''
+        let keyArr = []
+        data.forEach(v => {
+          //非空校验
+          if (!v.parameterName || !v.parameterValue) {
+            result = 'empty'
+          }
+          //重复校验
+          if (keyArr.indexOf(v.parameterName) > -1) {
+            result = 'same'
+          } else {
+            keyArr.push(v.parameterName)
+          }
+        })
+        return result
+      },
+      changeCreateTime(index) {
+        let rangeDate = this.list[index].rangeDate
+        let date = rangeDate[0] + '~' + rangeDate[1]
+        this.list[index].parameterValue = date
+      },
+      changeParam(data, index) {
+        this.list[index].requestParametersId = this.idObj[data.parameterName]
+        this.list[index].parameterType = this.typeObj[data.parameterName]
       }
-
-
-     
    
     }
   }

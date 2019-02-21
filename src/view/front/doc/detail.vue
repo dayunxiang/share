@@ -1,51 +1,61 @@
 <template>
-  <div class="front-main">
-    <div class="doc-detail-container">
-      <p>
-        <span class="label">{{docDetail.name}}</span>
-        <span v-if="docDetail.isFree != '2'">
-          <img :src="priceUrl" />
-          <span class="red">{{docDetail.payStander}}</span>
-        </span>
-        <span v-if="docDetail.isFree == '2'" class="status-success">
-          免费
-        </span>
-      </p>
-      <p class="editor">
-        <span>发布人：{{docDetail.userName}}</span>
-        <span>作者：{{docDetail.author}}</span>
-        <span>{{docDetail.createTime}}</span>
-        <span class="text-right">
-          <img :src="downloadUrl" /> 
-          {{docDetail.downloadTimes}}
-          <span class="btn-space"></span>
-          <img :src="starUrl" />  
-          {{docDetail.collectionTimes}}
-        </span>
-      </p>
+  <div  class="scroll">
+    <front-header :hideNav="true"></front-header>
+    <div class="mb325">
+      <div class="front-main">
+        <div class="doc-detail-container">
+          <p>
+            <span class="label">{{docDetail.name}}</span>
+            <span v-if="docDetail.isFree != '2'">
+              <img :src="priceUrl" />
+              <span class="red">{{docDetail.payStander}}</span>
+            </span>
+            <span v-if="docDetail.isFree == '2'" class="status-success">
+              免费
+            </span>
+          </p>
+          <p class="editor">
+            <span>发布人：{{docDetail.userName}}</span>
+            <span>作者：{{docDetail.author}}</span>
+            <span>{{docDetail.createTime}}</span>
+            <span class="text-right">
+              <img :src="downloadUrl" /> 
+              {{docDetail.downloadTimes}}
+              <span class="btn-space"></span>
+              <img :src="starUrl" />  
+              {{docDetail.collectionTimes}}
+            </span>
+          </p>
 
-      <div class="preview-con">
-        <iframe ref="iframe" id="iframe" :src="docDetail.previewUrl" frameborder="0" class="iframe"  @load="load"></iframe>
+          <div class="preview-con">
+            <iframe ref="iframe" id="iframe" :src="docDetail.previewUrl" frameborder="0" class="iframe"  @load="load"></iframe>
+          </div>
+        </div>
+        <div class="doc-btn">
+          <el-button type="primary" @click="download">{{docDetail.isDownload == 1 ? '再次下载' : '立即下载'}}</el-button>
+          <el-button @click="collect">
+            <img :src="starUrl2" v-if="docDetail.isCollect == 0"/>
+            <img :src="starUrl3" v-if="docDetail.isCollect == 1"/>
+            {{ docDetail.isCollect == 1 ? '取消收藏' : '收藏'}}
+          </el-button>
+        </div>
       </div>
     </div>
-    <div class="doc-btn">
-      <el-button type="primary" @click="download">{{docDetail.isDownload == 1 ? '再次下载' : '立即下载'}}</el-button>
-      <el-button @click="collect">
-        <img :src="starUrl2" v-if="docDetail.isCollect == 0"/>
-        <img :src="starUrl3" v-if="docDetail.isCollect == 1"/>
-        {{ docDetail.isCollect == 1 ? '取消收藏' : '收藏'}}
-      </el-button>
-    </div>
+    <front-footer></front-footer>
   </div>
 </template>
 
 <script>
+  import frontHeader from '../header'
+  import frontFooter from '../footer'
   import {getApiList, getDocDetail, collectDoc, getDocId} from '@/api/front/index'
   import { getToken } from '@/utils/auth'
   import { cancelCollect } from '@/api/doc/index'
   import axios from 'axios'
   export default {
     components: {
+      frontHeader,
+      frontFooter
     },
     mounted() {
       this.getDetail()

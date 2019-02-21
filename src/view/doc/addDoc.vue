@@ -58,9 +58,15 @@
 		
     <el-dialog title="对象类型" :visible="showBasic" :append-to-body="true"   @close="cancel" width="600px">
       <div class="basic-list">
+        <p class="filter-con">
+          <label>筛选条件：</label>
+          <span>
+            <el-input v-model="filterVal" size="small"></el-input>
+          </span>
+        </p>
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeFilterArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -86,6 +92,7 @@
         docFileUrl: '',
         showBasic: false, // 显示、隐藏基础对象选择框
         basicTypeArray: [],
+        filterVal: '', //过滤条件
         chooseTypeArray: [],
         basicTypeList: [],
 				form: {
@@ -122,7 +129,18 @@
           ]
         },
 			}
-		},
+    },
+    computed: {
+      basicTypeFilterArray() {
+        if (this.filterVal) {
+          return this.basicTypeArray.filter(v => {
+            return v.tableNote.indexOf(this.filterVal) > -1
+          })
+        } else {
+          return this.basicTypeArray
+        }
+      }
+    },
 		created() {
       // getType({ dicCode: 10000001 }).then( res => {
       //   this.typeArray = res.data
@@ -198,7 +216,9 @@
             this.form.docName = resp.data.attachmentName + '.' + resp.data.attachmentPattern
             this.form.docType = resp.data.attachmentPattern
             this.form.docPath = resp.data.attachmentPath
-            this.form.docName = file.name
+            if (!this.form.name) {
+              this.form.name = resp.data.attachmentName
+            }
             this.form.docId = resp.data.attachmentId
           } else {
              this.$message({

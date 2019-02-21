@@ -23,14 +23,52 @@
                   <el-checkbox-group v-model="formBase.checkedFileds" @change="handleCheckedChange">
                     <div v-for="(field, index) in fieldsArr" :key="field.id" class="mr-30 line-block">
                       <el-checkbox :label="field" :checked="field.checked">{{field.wordExplain}}</el-checkbox>
-                      <div class="bigCircle" @click="defineField(field)">
-                        <div class="smallCircle"></div>
-                      </div>
                     </div>
                   </el-checkbox-group>
                 </div>
               </div>
             </el-form-item>
+            <div>
+              <el-form-item label="筛选字段：">
+                <div class="search-table2">
+                  <div class="table-cell">
+                    <p v-for="(item, index) in searchForm" :key="index" class="serach-con-form">
+                      <span  class="input-con">
+                <el-select v-model="item.field" size="mini" @change="changeField(item.field,index)">
+                  <el-option v-for="child in formBase.checkedFileds" :key="child.id" :value="child.word" :label="child.wordExplain"></el-option>
+                </el-select>
+              </span>
+                      <span  class="input-con width-150">
+                <el-select v-model="item.conditions" size="mini">
+                  <el-option v-for="child in conditionArray" :key="child.id" :value="child.value" :label="child.label" :disabled="(typeObj[item.field] == 'DATE' && child.label != '=')"></el-option>
+                </el-select>
+              </span>
+                      <span class="input-con width-250">
+                <el-input size="mini" v-model="item.value" maxlength="200" v-if="typeObj[item.field] != 'DATE' && typeObj[item.field] != 'SELECT'"></el-input>
+                <el-select v-model="item.value" size="mini"  v-if="typeObj[item.field] == 'SELECT'">
+                  <el-option v-for="option in typeObj[item.field + '-option']" :key="option.id" :value="option.enumValue" :label="option.enumName"></el-option>
+                </el-select>
+                <el-date-picker
+                  v-model="item.rangeDate"
+                  type="daterange"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+                  v-if="typeObj[item.field] == 'DATE'">
+                </el-date-picker>
+              </span>
+                      <span class="btn-con">
+                <el-button  size="mini" @click="addData(index)" class="plusBtn"><i class="plusBg"></i></el-button>
+                <el-button v-if="searchForm.length > 1" size="mini" @click="deleteData(index)" class="minusBtn"><i class="minusBg"></i></el-button>
+              </span>
+                    </p>
+                    <div class="table-cell2">
+                      <el-button size="mini" @click="reset">重置</el-button>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+            </div>
           </el-form>
         </div>
       </div>
@@ -111,15 +149,22 @@
         <el-button size="mini" @click="back">返回</el-button>
       </div>
     </div>
-    <el-dialog title="上传图片" :visible="showUploadImg" :append-to-body="true" @close="cancel" width="500px">
+    <el-dialog title="上传图片" :visible="showUploadImg" :append-to-body="true" @close="cancel" width="80%">
       <div>
         <p class="dialog-tab">
           <span :class="defaultImg ? 'active' : ''" @click="changeImgTab(1)">默认图片</span>
           <span :class="!defaultImg ? 'active' : ''" @click="changeImgTab(2)">自定义图片</span>
         </p>
-        <span class="img-outer" v-show="defaultImg">
+        <!-- <span class="img-outer" v-show="defaultImg">
           <img :src="defaultUrl"/>
-        </span>
+        </span> -->
+
+        <div v-show="defaultImg" class="default-con">
+          <span v-for="(item, index) in urlObjArray" :key="index" @click="chooseImg(index)" :class="{'active': item.actived}">
+            <img :src="urlObj[item.url]">{{item.name}}
+          </span>
+        </div>
+
         <span class="img-outer" v-show="!defaultImg && !fileImg" @click="$refs.imgFile.click()">
           <img :src="fileUrl" style="width: 40px;"/><br/>
           <small>点击上传图片</small>
@@ -134,7 +179,7 @@
         <el-button  @click="cancel" size="small">取消</el-button>
       </span>
     </el-dialog>
-    <template v-if="defineDialogVisible">
+   <!--  <template v-if="defineDialogVisible">
       <el-dialog title="查询内容" :visible.sync="defineDialogVisible" width="500px" :append-to-body="true" class="myFieldDialog">
         <el-form>
           <el-form-item label="查询内容: " label-width="80px">
@@ -152,7 +197,7 @@
           <el-button size="small" @click="cancel">取消</el-button>
         </span>
       </el-dialog>
-    </template>
+    </template> -->
     <el-dialog title="预览" :visible="previewVisible" :append-to-body="true" fullscreen lock-scroll @close="cancel">
       <div class="vertival-view">
         <img :src="form.picPath" class="img-size"/>
@@ -160,9 +205,15 @@
     </el-dialog>
     <el-dialog title="对象类型" :visible="showBasic" :append-to-body="true" @close="cancel" width="600px">
       <div class="basic-list">
+        <p class="filter-con">
+          <label>筛选条件：</label>
+          <span>
+            <el-input v-model="filterVal" size="small"></el-input>
+          </span>
+        </p>
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeFilterArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -180,6 +231,19 @@ export default {
   name: 'editBase',
   data() {
     return {
+      fieldParams: [],
+      columns: [],
+      searchForm: [],
+      conditionArray: [
+        { value: '=', label: '=' },
+        { value: '!=', label: '!=' },
+        { value: '&gt;', label: '>' },
+        { value: '&gt;=', label: '>=' },
+        { value: '&lt;', label: '<' },
+        { value: '&lt;=', label: '<=' },
+        { value: 'like', label: '包含' }
+      ],
+      typeObj: {}, //字段-类型对应关系
       myField: '',
       showBasic: false, // 显示、隐藏基础对象选择框
       basicTypeArray: [],
@@ -257,9 +321,27 @@ export default {
       defineDialogVisible: false,
       result: [],
       selectedKeys: [],
+      filterVal: '', //过滤条件
       id: ''
     }
 
+  },
+  computed: {
+    basicTypeFilterArray() {
+      if (this.filterVal) {
+        return this.basicTypeArray.filter(v => {
+          return v.tableNote.indexOf(this.filterVal) > -1
+        })
+      } else {
+        return this.basicTypeArray
+      }
+    },
+    urlObj() {
+      return JSON.parse(JSON.stringify(this.$store.state.app.urlObj))
+    },
+    urlObjArray() {
+      return JSON.parse(JSON.stringify(this.$store.state.app.urlObjArray))
+    }
   },
   created() {
     if (!this.$route.params.id) {
@@ -270,7 +352,6 @@ export default {
       this.id = this.$route.params.id
       localStorage.setItem('id', this.$route.params.id)
     }
-    //this.getDetail()
   },
   activated() {
     if (this.$route.params.id) {
@@ -280,6 +361,14 @@ export default {
     }
   },
   methods: {
+    chooseImg(index) {//选中默认图片
+      this.urlObjArray.forEach(v => {
+        v.actived = false
+      })
+      this.urlObjArray[index].actived = true
+      this.$forceUpdate()
+      this.chooseIndex = index
+    },
     chooseBasic() { //显示对象选择框
       this.showBasic = true
     },
@@ -316,28 +405,14 @@ export default {
         this.typeArray = resp.data
       })
     },
-    changeTime(param) {
-      //字段为时间时，字符串转换成数组
-      let myParam = param
-      let keys3 = this.formBase.checkedFileds.filter(v => v.wordType == 'DATE').map(m => {
-        return m.word
-      })
-
-      for (let key in myParam) {
-        if (keys3.indexOf(key) > -1) {
-          myParam[key] = myParam[key].split(',')
-        } else {
-          myParam[key] = myParam[key]
-        }
-      }
-      return myParam
-    },
     getDetail() {
-      this.selectedKeys = []
+      
+     
       getBaseDetail('', this.id).then(res => {
+        this.formBase.checkedFileds = []
+        this.selectedKeys = []
+        this.searchForm = []
         let param = res.data
-
-
         this.form = {
           name: param.name,
           shortDescription: param.shortDescription,
@@ -352,12 +427,24 @@ export default {
         this.typeList = param.type.split(',')
         this.formBase.categoryId = param.mainType
         this.formBase.propertyTableId = param.subTableName
+        
+        
         getSonCates(this.formBase.categoryId).then(res => {
           this.propertyTableArr = res.data
           this.fieldsArr = []
           getFields(this.formBase.propertyTableId).then(res => {
             this.fieldsArr = res.data
+            //获取字段对应类型
+            this.fieldsArr.forEach(v => {
+              this.typeObj[v.word] = (v.wordType == 'DATE' || v.wordType.indexOf('TIMESTAMP') > -1) ? 'DATE' : (v.controlType == 'SELECT' ? 'SELECT' : v.wordType) //字段类型
+              if (v.controlType == 'SELECT') {
+                this.typeObj[v.word + '-option'] = v.enumList //下拉框时的下拉数据
+              }
+              this.typeObj[v.word + '-desc'] = v.wordExplain
+            })
+
             for (let key in param.fields) {
+
               this.fieldsArr.forEach(v => {
                 if (v.word == key) {
                   v.checked = true
@@ -368,6 +455,8 @@ export default {
                 }
               })
             }
+
+            
 
             //全选
             if (this.fieldsArr.length == this.selectedKeys.length) {
@@ -380,8 +469,28 @@ export default {
               this.checkAll = false
               this.isIndeterminate = true
             }
+
+         
             this.$nextTick(() => {
-              this.formBase = Object.assign({}, this.changeTime(param.fields), this.formBase)
+              //初始化搜索条件
+              for(let key in param.fields) {
+
+                param.fields[key][0] = JSON.parse(param.fields[key][0])
+               
+                if(param.fields[key][0].value) { //判断有无搜索条件
+                  this.searchForm.push({
+                    field: key,
+                    conditions: param.fields[key][0].conditions,
+                    rangeDate: (this.typeObj[key] == 'DATE') ? param.fields[key][0].value.split(',') : [],
+                    value: param.fields[key][0].value
+                  })
+                }
+              }
+              if(this.searchForm.length == 0) {
+                this.searchForm = [{}]
+              }
+             
+             this.createTable()
             })
 
           })
@@ -474,7 +583,17 @@ export default {
             propertyTableId: pid,
             checkedFileds: []
           }
+
           _this.fieldsArr = res.data
+          _this.searchForm = [{}]
+          //获取字段对应类型
+          _this.fieldsArr.forEach(v => {
+            _this.typeObj[v.word] = (v.wordType == 'DATE' || v.wordType.indexOf('TIMESTAMP') > -1) ? 'DATE' : (v.controlType == 'SELECT' ? 'SELECT' : v.wordType) //字段类型
+            if (v.controlType == 'SELECT') {
+              _this.typeObj[v.word + '-option'] = v.enumList //下拉框时的下拉数据
+            }
+            _this.typeObj[v.word + '-desc'] = v.wordExplain
+          })
         })
       }, 100)
 
@@ -500,31 +619,67 @@ export default {
     uploadImg() {
       this.showUploadImg = true
     },
+    dataURLtoFile(dataurl, filename) {//将base64转换为文件
+      var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while(n--){
+          u8arr[n] = bstr.charCodeAt(n);
+      }
+      //return new File([u8arr], filename, {type:mime}) // ie不兼容
+      return new Blob([u8arr], {type:mime})
+    },
     addImg() {
-      if (!this.defaultImg && this.file) {
-        let formData = new FormData()
-        formData.append('file', this.file)
-        uploadFile(formData).then(resp => {
-          if (resp.code == 200) {
+      if (this.defaultImg) {
+        this.file = this.dataURLtoFile(this.urlObj[this.urlObjArray[this.chooseIndex].url], this.urlObjArray[this.chooseIndex].name + '.png')
+        this.file.name = this.urlObjArray[this.chooseIndex].name + '.png'
+      } else {
+        if (this.file == '' || this.file == null || this.file == undefined) {
+          this.$message({
+            type: 'warning',
+            message: '图片不能为空！'
+          })
+          return false
+        }
+        if (this.file.size > 3 * 1024 * 1024) {
+          this.$message({
+            type: 'warning',
+            message: '图片大小不能超过3M！'
+          })
+          return false
+        }
+        let type = this.file.name.substring(this.file.name.lastIndexOf('.') + 1).toLowerCase()
+        let typeArray = ['jpg', 'jpeg', 'tiff', 'raw', 'bmp', 'gif', 'png']
+        if (typeArray.indexOf(type) < 0) {
+          this.$message({
+            type: 'warning',
+            message: '图片格式不正确！'
+          })
+          return false
+        }
+      }
+      let formData = new FormData()
+      formData.append('file', this.file, this.file.name)
+      uploadFile(formData).then(resp => {
+        if (resp.code == 200) {
+          if (!this.defaultImg) {
             this.$message({
               type: 'success',
               message: '上传成功'
             })
-            this.imgList[0].url = resp.data.attachmentPath
-            this.form.picId = resp.data.attachmentId
-            this.form.picPath = resp.data.attachmentPath
-            this.showUploadImg = false
-            this.delImgVisible = true
-          } else {
-            this.$message({
-              type: 'success',
-              message: resp.message
-            })
           }
-        })
-      } else {
-        this.showUploadImg = false
-      }
+          this.imgList[0].url = resp.data.attachmentPath
+          this.form.picId = resp.data.attachmentId
+          this.form.picPath = resp.data.attachmentPath
+          this.showUploadImg = false
+          this.delImgVisible = true
+        } else {
+          this.$message({
+            type: 'success',
+            message: resp.message
+          })
+        }
+      })
+      
     },
     delImg() {
       this.form.picAttachmentId = ''
@@ -568,67 +723,139 @@ export default {
       this.previewVisible = false
       this.showBasic = false
     },
-    defineField(field) {
-      this.myField = field
-      this.defineDialogVisible = true
-      this.content = this.formBase[field.word]
-      this.contentKey = field.word
+    reset() { // 重置
+      this.searchForm = [{}]
     },
-    saveContent() {
-      this.formBase[this.contentKey] = this.content
-      this.defineDialogVisible = false
-    },
-    getParams() {
-      //点击生成报表，参数
-      let json = {}
-      let keys = []
-      for (let key in this.formBase) {
-        keys.push(key)
-      }
+    addData(index) { //新增一行筛选条件
+      let param = {
 
-      this.formBase.checkedFileds.map(v => {
-        if (keys.indexOf(v.word) > -1) {
-          json[v.word] = v.wordType == 'DATE' ? this.formBase[v.word].join() : this.formBase[v.word]
+      }
+      this.searchForm.splice(index + 1, 0, param)
+    },
+    deleteData(index) { //删除一行筛选条件
+      this.searchForm.splice(index, 1)
+    },
+    changeField(val, index) {
+      //判断字段为时间，筛选条件只能选'='
+      if (this.typeObj[val] == 'DATE') {
+        this.$set(this.searchForm[index], 'conditions', '=')
+        this.$set(this.searchForm[index], 'value', '')
+        this.$set(this.searchForm[index], 'rangeDate', [])
+      } else if(this.typeObj[val] == 'SELECT') {
+        this.$set(this.searchForm[index], 'value', '')
+      }
+    },
+    checkParam(data) { //校验查询参数格式
+      let idArr = []
+      let result = ''
+      data.forEach( v => {
+        if(this.typeObj[v.field] == 'NUMBER' && isNaN(v.value)  ) {
+          result = 'number' + '字段[' + this.typeObj[v.field + '-desc'] +']的值必须为数值类型'
+        }
+        if (idArr.indexOf(v.field) > -1) {
+          result = 'same'
         } else {
-          json[v.word] = ''
+          idArr.push(v.field)
+        }
+        if (!v.field || !v.conditions || !v.value) {
+          result = 'empty'
         }
       })
-      return json
-
-    },
-    getParams2() {
-      //点击保存，参数
-      let param = []
-      let keys = []
-      for (let key in this.formBase) {
-        keys.push(key)
-      }
-
-      this.formBase.checkedFileds.map(v => {
-        let json = {}
-        if (keys.indexOf(v.word) > -1) {
-          json.value = v.wordType == 'DATE' ? this.formBase[v.word].join() : this.formBase[v.word]
-        } else {
-          json.value = ''
-        }
-        json.field = v.word
-        json.fieldName = v.wordExplain
-        param.push(json)
-      })
-      return param
+      return result
     },
     createTable(tag) {
 
       if (this.formBase.checkedFileds.length > 0) { //判断是否选择字段
+        
         let json = {}
-        this.selectedKeys = this.formBase.checkedFileds
-        json.tableName = this.formBase.propertyTableId
-        this.page.page = tag ? tag : 1
-        let param = Object.assign({}, json, this.page, this.getParams())
-        getTable(param).then(res => {
 
-          this.result = res.data.result
-          this.total = res.data.total
+
+        let flag = Object.keys(this.searchForm[0]).length > 0 //判断是否有搜索条件
+
+       
+       
+        if(flag) {
+          this.searchForm.forEach( ve => {
+            ve.value = (this.typeObj[ve.field] == 'DATE') ? ve.rangeDate.join() : ve.value
+          })
+
+          if (this.checkParam(this.searchForm) == 'same') {
+            this.$message({
+              type: 'warning',
+              message: '筛选字段不能重复'
+            })
+            return false
+          }
+          if (this.checkParam(this.searchForm) == 'empty') {
+            this.$message({
+              type: 'warning',
+              message: '筛选字段不能为空'
+            })
+            return false
+          }
+
+          if (this.checkParam(this.searchForm).indexOf('number') > -1) {
+            this.$message({
+              type: 'warning',
+              message: this.checkParam(this.searchForm).slice(6)
+            })
+            return false
+          }
+        }
+        
+          
+          //置空保存提交参数
+          this.fieldParams = []
+
+         
+
+          let arr = [].concat(this.formBase.checkedFileds)
+          arr.forEach( (v, i) => {
+            this.searchForm.forEach( ele => {
+              if(ele.field == v.word) {
+                arr[i] = ele
+              }
+            })
+          })
+
+          arr.map( ele => {
+            if(ele.field) {
+              json[ele.field] = [{ conditions: ele.conditions, value: ele.value }]
+
+              //赋值保存提交参数
+              this.fieldParams.push({
+                conditions: ele.conditions,
+                field: ele.field,
+                value: ele.value,
+                fieldName: this.typeObj[ele.field + '-desc']
+              })
+
+            } else {
+              json[ele.word] = [{ conditions: '', value: '' }]
+              //赋值保存提交参数
+                this.fieldParams.push({
+                  conditions: '',
+                  field: ele.word,
+                  value: '',
+                  fieldName: ele.wordExplain
+                })
+            }
+          })
+
+
+        json.tableName = this.formBase.propertyTableId
+
+        
+
+        this.page.page = tag ? tag : 1
+        let param = Object.assign({}, json, this.page)
+        getTable(param).then(res => {
+          if(res.code == 200) {
+            this.firstCreate = true //首次生成报表
+            this.selectedKeys = this.formBase.checkedFileds //报表表头
+            this.result = res.data.result
+            this.total = res.data.total
+          }
         })
       } else {
         this.$message({
@@ -644,7 +871,7 @@ export default {
           let json = {}
           json.mainType = this.formBase.categoryId
           json.subTableName = this.formBase.propertyTableId
-          json.fieldsList = this.getParams2()
+          json.fieldsList = this.fieldParams
           json.id = this.id
 
           this.$refs['form'].validate((valid) => {
@@ -695,7 +922,7 @@ export default {
           json.mainType = this.formBase.categoryId
           json.subTableName = this.formBase.propertyTableId
 
-          json.fieldsList = this.getParams2()
+          json.fieldsList = this.fieldParams
           json.id = this.id
 
           this.$refs['form'].validate((valid) => {

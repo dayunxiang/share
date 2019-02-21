@@ -72,6 +72,12 @@
               sessionStorage.removeItem('menu')
               sessionStorage.removeItem('isFirst')
               this.$store.state.user.menus = []
+              this.$store.state.app.msgCount = 0
+              
+              this.$store.state.app.refresh = false
+              this.$store.state.app.loginFlag = false
+              this.$store.state.app.refreshPage = true
+              this.$store.state.app.lastLogin = {}
               if (resp.data) {
                 window.location.href = resp.data
               } else {

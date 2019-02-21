@@ -10,11 +10,11 @@
       <span  >我的共享</span>
     </div>
     <div class="scroll-hide">
-      <el-menu :default-active="defaultAction" class="el-menu-vertical-demo " @open="handleOpen" @close="handleClose" @select="handleSelect" :collapse="isCollapse">
+      <el-menu  :default-active="$route.path" :default-openeds="defaultOpened" class="el-menu-vertical-demo " @open="handleOpen" @close="handleClose" @select="handleSelect" :collapse="isCollapse">
         <template v-for="(item,key) in menus">
           <template v-if="item.children.length == 0">
             <router-link :to="item.href" >
-              <el-menu-item :index="item.href" :key="'/' + item.href" class="no-child">
+              <el-menu-item :index="item.href" :key="item.href" class="no-child">
                   <i :class="item.icon" class="iconfont"></i>
                   <span slot="title">{{item.title}}</span>
               </el-menu-item>
@@ -29,7 +29,7 @@
               <el-menu-item-group>
                 <template v-for="(child, unn) in item.children">
                   <router-link :to="child.href" v-if="child.title !== '修改密码'">
-                    <el-menu-item  :index="key+'-'+unn" >{{child.title}}</el-menu-item>
+                    <el-menu-item  :index="child.href" :key="child.href" >{{child.title}}</el-menu-item>
                   </router-link>
                   <!-- class="target_link" -->
                   <a :href="child.href" target="_blank" v-if="child.title == '修改密码'">
@@ -275,6 +275,22 @@
         } else {
           return this.$route.path
         }
+      },
+      defaultOpened() {
+        let path =  this.$route.path.substring(1)
+        if (this.menus instanceof Array && this.menus.length > 0) {
+          let result = []
+          this.menus.forEach((v, index) => {
+            if (v.children.length > 0) {
+              v.children.forEach(val => {
+                if (val.href.indexOf(path) > -1) {
+                  result = [index + '']
+                }
+              })
+            } 
+          })
+          return result
+        } 
       }
       
     }

@@ -56,6 +56,11 @@ service.interceptors.response.use(response => {
     if (res.code === 401) {
       removeToken()
       store.state.app.loginFlag = true
+      let route = router.app._route
+      if (route.query && Object.keys(route.query).length > 0) {
+        store.state.app.routeType = 'path'
+        store.state.app.routeParam = route.query
+      }
       //router.go(-1)
     }
     if (res.code === 403) {

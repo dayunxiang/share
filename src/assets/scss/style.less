@@ -92,7 +92,7 @@ body, html {
     }
     .logo {
         color: #fff;
-        font-weight: 600;
+        font-weight: bold;
         font-size: 14px;
         padding: 15px 10px ;
         cursor: pointer;
@@ -798,6 +798,9 @@ body, html {
 .mar-t-20 {
     margin-top: 20px;
 }
+.pad-l-30 .el-input__inner{
+    padding-left: 30px !important;
+}
 .status-success {
     color: #13b979;
 }
@@ -1098,7 +1101,7 @@ text-color
 }
 .chart-outer{
     width: 100%;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 211px);
 }
 .pad-top-0 {
     padding-top: 0 !important;
@@ -1120,6 +1123,7 @@ text-color
         border-right: none;
         text-align: center;
         line-height: 26px;
+        height: 28px;
         font-size: 12px;
     }
     .form-input {
@@ -1419,5 +1423,41 @@ span.orange {
     color: #009dec;
     i {
         cursor: pointer;
+    }
+}
+.filter-con {
+    width: 400px;
+    margin-bottom: 20px;
+    label {
+        width: 90px;
+        display: inline-block;
+        text-align: right
+    }
+    span {
+        width: 300px;
+        display: inline-block;
+    }
+}
+.default-con {
+    width: 100%;
+    margin: 20px 0;
+    padding: 10px;
+    max-height: 350px;
+    overflow: auto;
+    span {
+        display: inline-block;
+        width: 16.666%;
+        min-width: 180px;
+        margin-bottom: 18px;
+        line-height: 30px;
+        cursor: pointer;
+        img {
+            width: 30px;
+            margin-right: 10px;
+            vertical-align: bottom;
+        }
+        &.active {
+            color: #009dec;
+        }
     }
 }

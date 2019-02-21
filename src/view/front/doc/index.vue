@@ -36,13 +36,15 @@
             <el-table-column type="index" label="序号" width="50" fixed></el-table-column>
             <el-table-column label="标题" prop="name" class-name="text-left doc-name" :show-overflow-tooltip="true">
               <template slot-scope="scope">
-                <img :src="wordUrl" class="doc-img" v-if="scope.row.docType == 'doc' || scope.row.docType == 'docx'"/>
-                <img :src="pptdUrl" class="doc-img" v-else-if="scope.row.docType == 'ppt'"/>
-                <img :src="pdfUrl" class="doc-img" v-else-if="scope.row.docType == 'pdf'"/>
-                <img :src="txtUrl" class="doc-img" v-else-if="scope.row.docType == 'txt'"/>
-                <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'xlsx' || scope.row.docType == 'xls'"/>
-                <img :src="elseUrl" class="doc-img" v-else/>
-                {{scope.row.name}}
+                <router-link target="_blank" :to="{path: '/doc/detail', query: {id: scope.row.id}}">
+                  <img :src="wordUrl" class="doc-img" v-if="scope.row.docType == 'doc' || scope.row.docType == 'docx'"/>
+                  <img :src="pptdUrl" class="doc-img" v-else-if="scope.row.docType == 'ppt' || scope.row.docType == 'pptx'"/>
+                  <img :src="pdfUrl" class="doc-img" v-else-if="scope.row.docType == 'pdf'"/>
+                  <img :src="txtUrl" class="doc-img" v-else-if="scope.row.docType == 'txt'"/>
+                  <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'xlsx' || scope.row.docType == 'xls'"/>
+                  <img :src="elseUrl" class="doc-img" v-else/>
+                  {{scope.row.name}}
+                </router-link>
               </template>
             </el-table-column>
             <el-table-column label="类型" prop="docType" width="70"></el-table-column>
@@ -186,14 +188,14 @@
  
 
       docDetail(row, column, cell, event) {
-        if (column.label == '标题') {
-          this.$router.push({
-            name: 'docDetail',
-            query: {
-              id: row.id
-            }
-          })
-        }
+        // if (column.label == '标题') {
+        //   this.$router.push({
+        //     name: 'docDetail',
+        //     query: {
+        //       id: row.id
+        //     }
+        //   })
+        // }
       },
       doSort(column, event) {
         if(column.property == 'createTime') {

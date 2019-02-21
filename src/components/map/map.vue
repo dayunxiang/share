@@ -1,8 +1,8 @@
 <template>  
-<div style="position:relative">
+<div style="position:relative" @click.right="closeTable">
     <div class="table-position" v-if="showTable">
         <span class="close-btn" @click="closeTable"><i class="el-icon-close"></i></span>
-        <el-table :data="data" height="200px">
+        <el-table :data="data" height="200px" @row-click="rowClick">
             <el-table-column :label="item.label" :prop="item.column" v-for="item in columns" :key="item.column" :show-overflow-tooltip="true"></el-table-column>
         </el-table>
     </div>
@@ -13,6 +13,8 @@
    </span> -->
     <!--画矩形-->
    <span class="map-icon" id="point3">
+   </span>
+   <span class="map-icon2" id="homeBtn">
    </span>
    <!--画面-->
    <!-- <span class="point2" id="point2">
@@ -27,7 +29,11 @@
 <script>  
 import esriLoader from 'esri-loader'  
 import axios from 'axios'
+import {getToken} from '../../utils/auth'
 export default {  
+    props: {
+        typeFlag: Number
+    },
   mounted() {  
     if (!esriLoader.isLoaded()) {//判断是否加载  
         esriLoader.bootstrap((err) => {//加载esriloader  
@@ -60,6 +66,30 @@ export default {
        }
    },
    methods: {  
+    rowClick(row, event, column) {
+        if (getToken()) {
+           //跳转到基础数据定制页
+           this.$router.push({
+               name: 'editBaseData',
+               params: {
+                   basicType: this.lastType.substring(4),
+                   name: row.NAME,
+                   code: row.OBJ_CODE
+               }
+           })
+        } else {
+           this.$store.state.app.lastLogin.name = 'editBaseData'
+           this.$store.state.app.routeParam =  {
+               basicType: this.lastType.substring(4),
+               name: row.NAME,
+               code: row.OBJ_CODE
+           }
+           this.$store.state.app.loginFlag = true
+           
+        }
+        this.$store.state.app.tabCount = 3
+        sessionStorage.setItem('tabNum', 3) 
+    },
     createMap() {  
       esriLoader.dojoRequire([  
          'esri/layers/TileLayer',
@@ -141,6 +171,17 @@ export default {
             view.goTo(layer.fullExtent)
         })
 
+        // var imgLayer = new MapImageLayer({
+        //     //url: 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RSWB_26/MapServer',
+        //     url: 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_LAKE_28/MapServer',
+        //     //dpi:96
+        // });
+        // imgLayer.when((resp) => {
+        //     console.log(resp, imgLayer)
+        //     imgLayer.dpi = 96
+        // })
+        // map.add(imgLayer);
+
         //标注点
         let geomSer = new GeometryService({
           url:
@@ -156,6 +197,7 @@ export default {
         let iconQuery2 = query('#point2')
         let iconQuery3 = query('#point3')
         let iconQuery4 = query('#point4')
+        let homeBtn = query('#homeBtn')
         iconQuery.on('click', event => {
             this.initDrawLine(event, view, Graphic, Polyline, Draw)
         })
@@ -173,6 +215,14 @@ export default {
 
         iconQuery4.on('click', event => {
             this.initDrawCircle(event,  Draw, view, Graphic, Point, Circle)
+        })
+
+        homeBtn.on('click', event => {
+            layer.fullExtent.xmax = 120.79213249943894
+            layer.fullExtent.xmin = 111.21113113656108
+            layer.fullExtent.ymax = 30.956506550245365
+            layer.fullExtent.ymin = 23.32570492960322
+            view.goTo(layer.fullExtent)
         })
 
         //点击事件
@@ -448,7 +498,7 @@ export default {
             this.showTable = true
             this.data = resp.data.docList
             let type = this.lastType.substring(4)
-            //根据类型设置表头
+            //根据类型设置表头,根据类型确定排序字段
             switch(type) {
                 case 'CWS': this.columns = [
                                 {column: 'NAME', label: '名称'},
@@ -468,6 +518,9 @@ export default {
                                 {column: 'RV_LEN', label: '河流长度(km)'},
                                 {column: 'CROS_BOUN_', label: '跨界类型'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.RV_LEN -a.RV_LEN
+                            })
                             break
                 case 'LK': this.columns = [
                                 {column: 'NAME', label: '湖泊名称'},
@@ -478,6 +531,9 @@ export default {
                                 {column: 'CROS_BOUN_', label: '跨界类型'},
                                 {column: 'LAKE_CAP', label: '湖泊容积(万km²)'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.LAKE_CAP - a.LAKE_CAP
+                            })
                             break
                 case 'DIKE': this.columns = [
                                 {column: 'NAME', label: '堤防名称'},
@@ -488,6 +544,9 @@ export default {
                                 {column: 'GATA_NUM', label: '水闸数量(个)'},
                                 {column: 'BUID_TIME_', label: '建成时间'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.DIKE_LEN - a.DIKE_LEN
+                            })
                             break
                 case 'RES': this.columns = [
                                 {column: 'NAME', label: '水库名称'},
@@ -500,6 +559,9 @@ export default {
                                 {column: 'RS_TYPE', label: '水库类型'},
                                 {column: 'BUID_TIME_', label: '建成时间'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.TOT_CAP - a.TOT_CAP
+                            })
                             break
                 case 'IRR': this.columns = [
                                 {column: 'NAME', label: '名称'},
@@ -509,6 +571,9 @@ export default {
                                 {column: 'IRR_ADM_NA', label: '管理单位'},
                                 {column: 'OBJ_CODE', label: '编码'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.IRR_AREA_T - a.IRR_AREA_T
+                            })
                             break
                 case 'HYST': this.columns = [
                                 {column: 'NAME', label: '水电站名称'},
@@ -519,6 +584,9 @@ export default {
                                 {column: 'OBJ_CODE', label: '水电站编码'},
                                 {column: 'BUID_TIME_', label: '建成时间'},
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.INS_CAP - a.INS_CAP
+                            })
                             break
                 case 'RUDA': this.columns = [
                                 {column: 'NAME', label: '橡胶坝名称'},
@@ -530,6 +598,9 @@ export default {
                                 {column: 'RUB_DAM_EL', label: '高程系统'},
                                 {column: 'BUID_TIME_', label: '建成时间'},
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.RUB_DAM_LE - a.RUB_DAM_LE
+                            })
                             break
                 case 'WAGA': this.columns = [
                                 {column: 'NAME', label: '水闸名称'},
@@ -541,6 +612,9 @@ export default {
                                 {column: 'LOC_RV_NAM', label: '所在河流名称'},
                                 {column: 'BUID_TIME_', label: '建成时间'},
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.GATE_FLOW - a.GATE_FLOW
+                            })
                             break
                 case 'PUST': this.columns = [
                                 {column: 'NAME', label: '泵站名称'},
@@ -553,6 +627,9 @@ export default {
                                 {column: 'ENG_TASK', label: '泵站类型'},
                                 {column: 'BUID_TIME_', label: '建成时间'},
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.PUMP_NUM - a.PUMP_NUM
+                            })
                             break
                 case 'WADI': this.columns = [
                                 {column: 'NAME', label: '名称'},
@@ -576,6 +653,9 @@ export default {
                                 {column: 'DES_FLOW', label: '设计流量'},
                                 {column: 'ACT_FLOW', label: '实际流量'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.CH_LEN - a.CH_LEN
+                            })
                             break
                 case 'WELL': this.columns = [
                                 {column: 'NAME', label: '水井名称'},
@@ -585,6 +665,9 @@ export default {
                                 {column: 'TOP_LOC', label: '具体位置'},
                                 {column: 'WELL_ADM_N', label: '管理单位'}
                             ]
+                            this.data = this.data.sort((a, b) => {
+                                return b.WELL_IN_DI - a.WELL_IN_DI
+                            })
                             break
                 case 'DAM': this.columns = [
                                 {column: 'NAME', label: '水库名称'},
@@ -627,6 +710,7 @@ export default {
                             break
                 default: break;
             }
+            //
         })
     },
     executeIdentifyTask(event, view, arrayUtils, IdentifyTask, Point, ProjectParameters, SpatialReference, SimpleMarkerSymbol, Graphic, highlightLayer, geomSer) {
@@ -822,7 +906,7 @@ export default {
                                  '<p class="point-detail"><span>正常蓄水位(m)：</span><span>' + result.COR_SUR + '</span></p>' +
                                  '<p class="point-detail"><span>死水位：</span><span>' + result.DEAD_STAG + '</span></p>' +
                                  '<p class="point-detail"><span>设计洪水位(m)：</span><span>' + result.DES_FL_STA + '</span></p>' +
-                                 '<p class="point-detail"><span>水库编码：</span><span>' + result.GATA_NUM + '</span></p>' +
+                                 '<p class="point-detail"><span>水库编码：</span><span>' + result.OBJ_CODE + '</span></p>' +
                                  '<p class="point-detail"><span>总库容(万m³)：</span><span>' + result.TOT_CAP + '</span></p>'+
                                  '<p class="point-detail"><span>兴利库容(万m³)：</span><span>' + result.AVA_STOR + '</span></p>' +
                                  '<p class="point-detail"><span>设计年供水量(万m³)：</span><span>' + result.DES_WSUP + '</span></p>' +
@@ -1043,23 +1127,23 @@ export default {
             switch(type) {
                 case 'CWS': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_CWS_8/MapServer'; break;//农村供水
                 case 'DAM': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_DAM_20/MapServer'; break;//大坝
-                case 'DIKE': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_DIKE_22/MapServer'; break;//堤防
-                case 'WELL': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_WELL_17/MapServer'; break;//水井
-                case 'RV': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RIVER_Polygon_29/MapServer'; break;//河流
-                case 'LK': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_LAKE_28/MapServer'; break;//湖泊
-                case 'RES': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RSWB_26/MapServer'; break;//水库
-                case 'IRR': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_IRR_27/MapServer'; break;//灌区
-                //case 'PDO': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_PDO_19/MapServer'; break;//入河排污口
-                case 'HYST': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_HYPO_6/MapServer'; break;//水电站
-                case 'RUDA': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RUB_15/MapServer'; break;//橡胶坝
-                case 'WAGA': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_GATE_14/MapServer'; break;//水闸
-                case 'PUST': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_PUMP_7/MapServer'; break;//泵站
+                case 'DIKE': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_DIKE_22/MapServer'; break;//堤防-sort
+                case 'WELL': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_WELL_17/MapServer'; break;//水井-sort
+                case 'RV': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RIVER_Polygon_29/MapServer'; break;//河流-sort
+                case 'LK': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_LAKE_28/MapServer'; break;//湖泊-sort
+                case 'RES': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RSWB_26/MapServer'; break;//水库-sort
+                case 'IRR': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_IRR_27/MapServer'; break;//灌区-sort
+                case 'HYST': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_HYPO_6/MapServer'; break;//水电站-sort
+                case 'RUDA': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_RUB_15/MapServer'; break;//橡胶坝-srot
+                case 'WAGA': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_GATE_14/MapServer'; break;//水闸-sort
+                case 'PUST': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_PUMP_7/MapServer'; break;//泵站-sort
                 case 'WADI': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_DITR_23/MapServer'; break;//引调水
-                case 'CHAN': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_CH_21/MapServer'; break;//渠道
+                case 'CHAN': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_CH_21/MapServer'; break;//渠道-sort
                 case 'WAIN': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_WINT_10/MapServer'; break;//取水口
                 case 'SWHS': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_SUWS_18/MapServer'; break;//地表水
                 case 'BRID': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_BRIDGE_33/MapServer'; break;//桥梁
                 case 'ST': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_OBS_9/MapServer'; break;//测站
+                //case 'PDO': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/Feature_PDO_19/MapServer'; break;//入河排污口
                // case 'GWHS': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/zhuanti/ST_STBPRP_B_ZG/MapServer'; break;//地下水水源地
                 //case 'AD': url = 'https://map.jxwrd.gov.cn/arcgis/rest/services/Image/XZQH/MapServer'; break;//行政区划
                 default:  break;
@@ -1071,6 +1155,8 @@ export default {
                 url: url
             });
             this.map.add(this.imgObj[id]);
+
+          
 
         }
     }

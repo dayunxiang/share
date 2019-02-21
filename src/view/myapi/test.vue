@@ -51,7 +51,9 @@
       </div>
       <div class="mb20 table-label" v-if="requestFalse">
         <label class="same-api-label">返回内容：</label>
-        <div class="back-con">{{result}}</div>
+        <div class="back-con">
+          <pre>{{result}}</pre>
+        </div>
       </div>
     </div>
    

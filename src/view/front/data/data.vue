@@ -39,28 +39,44 @@
             <span class="api-name white-color">基础数据订制</span><br/>
             <el-button type="primary" class="btn custom-btn" @click="basicAPi()">立即订制</el-button>
           </div>
-          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.shortDescription" @click="dataDetail(item)">
+          <div class="api" v-for="(item, index) in apiList" :key="index" @click="dataDetail(item)">
             <img :src="defaultUrl" v-if="!item.picPath"/>
             <img :src="item.picPath" v-if="item.picPath"/><br/>
             <span class="new" v-if="item.isNew">NEW</span>
-            <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
-            <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
-            <span class="free" v-if="item.isFree == '0'">免费</span><br/>
-            <span class="api-name">{{item.name.substring(0, 10)}}</span>
+            <span class="api-name">{{item.name}}</span>
+            <span class="api-shortdesc">{{item.shortDescription}}</span>
             
-            <el-button type="primary" class="btn" @click="dataDetail(item)">立即下载</el-button>
+            <div class="text-left">
+              <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
+              <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
+              <span class="free" v-if="item.isFree == '0'">免费</span><br/>
+            </div>
+            <div>
+              <div class="icon-data fl">
+                <img :src="starUrl"/>
+                <small> {{item.collectionTimes ? item.collectionTimes : 0}}</small>
+              </div>
+              <div class="icon-data fr">
+                <img :src="downloadUrl"/>
+                <small> {{item.downloadTimes ? item.downloadTimes : 0}}</small>
+              </div>
+              <div class="clear-float"></div>
+            </div>
+            
+            <!-- <el-button type="primary" class="btn" @click="dataDetail(item)">立即下载</el-button> -->
           </div>
 
         </div>
-        <div class="footerPage mb40">
+        <div class="footerPage mb40 special-page">
           <div class="rightPage">
+            <span class="page-total">共&nbsp;{{total}}&nbsp;条</span>
             <el-pagination
               background
               @current-change="handleCurrentChange"
               :current-page.sync="page.page"
               :page-size="page.size"
               layout="total, prev, pager, next, jumper"
-              :total="total">
+              :page-count="pageCount">
             </el-pagination>
           </div>
         </div>
@@ -104,6 +120,8 @@
         defaultUrl: require('@/assets/images/default.png'),
         customUrl: require('@/assets/images/api-custom.png'),
         priceUrl: require('@/assets/images/price2.png'),
+        starUrl: require('@/assets/images/star.png'),
+        downloadUrl: require('@/assets/images/doc_download.png'),
         form: {
           type: '',
           sort: '1',
@@ -114,6 +132,7 @@
           size: 20
         },
         total: 0,
+        pageCount: 0,
         apiList: [],
         apiTypeArray: [
           {name: '全部', codeExt: '', checked: true}
@@ -147,6 +166,8 @@
           if (resp.code == 200) {
             this.apiList = resp.data.data
             this.total = resp.data.total
+            //this.pageCount = Math.ceil((this.total + 1) / this.page.size)
+            this.pageCount = Math.ceil((this.total - 19) / 20) + 1
           }
         })
       },
@@ -214,6 +235,7 @@
           })
         } else {
           this.$store.state.app.loginFlag = true
+          this.$store.state.app.lastLogin.name = 'addBaseData'
         }
         
       }

@@ -172,6 +172,7 @@ export default {
                 this.$store.state.app.cacheList = []
                 this.$store.state.app.cacheList.push(name)
             }
+            this.tagBodyLeft = 0
         },
         moveToView (tag) {
             if (tag.offsetLeft < -this.tagBodyLeft) {

@@ -90,12 +90,14 @@
     mounted() {
       if (this.$route.params.pageTab) {
         this.tabNum = this.$route.params.pageTab
+        this.form.status = this.$route.params.pageTab
       }
       this.getList()
     },
     activated() {
       if (this.$route.params.pageTab) {
         this.tabNum = this.$route.params.pageTab
+        this.form.status = this.$route.params.pageTab
         this.getList()
       } else if (this.$route.params.type == 'init') {
         this.getList()

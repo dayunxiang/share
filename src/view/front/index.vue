@@ -39,7 +39,9 @@
         </div>
       </div>
       <div class="map-container">
-        <gis-map ref="gisMap"></gis-map>
+        <div style="">
+           <gis-map ref="gisMap" :typeFlag="typeFlag"></gis-map>
+        </div>
       </div>
     </div>
     <div class="index-link" v-show="!showMapData">
@@ -66,20 +68,23 @@
         <p class="title">推荐API</p>
         <div class="new">
           <span class="api-title" v-for="item in newApiList" :key="item.id" @click="goApiDetail(item)">
-            <img :src="logoUrl" />
+            <img :src="item.picPath" v-if="item.picPath"/>
+            <img :src="logoUrl" v-if="!item.picPath"/>
             <span :title="item.apiName">{{item.apiName}}</span>
           </span>
          
         </div>
         <div class="hot">
           <span class="api-title" v-for="item in hotApiList" :key="item.id" @click="goApiDetail(item)">
-            <img :src="logoUrl" />
+            <img :src="item.picPath" v-if="item.picPath"/>
+            <img :src="logoUrl" v-if="!item.picPath"/>
             <span :title="item.apiName">{{item.apiName}}</span>
           </span>
         </div>
         <div class="common">
           <span class="api-title" v-for="item in commonApiList" :key="item.id" @click="goApiDetail(item)">
-            <img :src="logoUrl" />
+            <img :src="item.picPath" v-if="item.picPath"/>
+            <img :src="logoUrl" v-if="!item.picPath"/>
             <span :title="item.apiName">{{item.apiName}}</span>
           </span>    
         </div>
@@ -89,14 +94,18 @@
         <p class="title">推荐数据</p>
         <div class="book">
           <span class="api-title-2" v-for="(item, index) in bookDataList" :key="index" @click="goDataDetail(item)">
-            <img :src="logoUrl" />
+            
+            <img :src="item.picPath" v-if="item.picPath"/>
+            <img :src="logoUrl" v-if="!item.picPath"/>
             <span :title="item.name">{{item.name}}</span>
           </span> 
          
         </div>
         <div class="like">
            <span class="api-title-2" v-for="(item, index) in sameDataList" :key="index" @click="goDataDetail(item)">
-            <img :src="logoUrl" />
+            <img :src="item.picPath" v-if="item.picPath"/>
+            <img :src="logoUrl" v-if="!item.picPath"/>
+           
             <span :title="item.name">{{item.name}}</span>
           </span> 
         </div>
@@ -120,7 +129,9 @@
               <img :src="txtUrl" v-else-if="item.docType == 'txt'"/>
               <img :src="excelUrl" v-else-if="item.docType == 'xls' || item.docType == 'xlsx'"/>
               <img :src="elseUrl" v-else/>
-              <span class="name" @click="goDocDetail(item)">{{item.name}}</span>
+              <router-link target="_blank" :to="{path: '/doc/detail', query: {id: item.id}}">
+                <span class="name" >{{item.name}}</span>
+              </router-link>
               <span class="time">{{item.createTime}}</span>
             </p>
           </div>
@@ -147,7 +158,7 @@
         <span class="map-more" @click="goMoreApi">更多 >></span>
       </p>
       <div class="api-condition mar-top-30 mar-b-20">
-        <div class="api" v-for="(item, index) in mapApiList" :key="index" :title="item.apiName">
+        <!-- <div class="api" v-for="(item, index) in mapApiList" :key="index" :title="item.apiName">
           <img :src="defaultUrl" v-if="!item.filePath"/>
           <img :src="item.filePath" v-if="item.filePath"/><br/>
           <span class="new" v-if="item.isNew">NEW</span>
@@ -156,7 +167,33 @@
           <span class="api-name">{{item.apiName.substring(0, 10)}}</span>
           
           <el-button type="primary" class="btn" @click="goApiDetail(item)">立即订阅</el-button>
-        </div>
+        </div> -->
+
+         <div class="api" v-for="(item, index) in mapApiList" :key="index" @click="goApiDetail(item)">
+            <img :src="defaultUrl" v-if="!item.filePath"/>
+            <img :src="item.filePath" v-if="item.filePath"/><br/>
+            <span class="new" v-if="item.isNew">NEW</span>
+            <span class="api-name">{{item.apiName}}</span>
+            <span class="api-shortdesc">{{item.apiShortDescription}}</span>
+            <div class="text-left">
+              <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
+              <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
+              <span class="free" v-if="item.isFree == '0'">免费</span>
+            </div>
+            <div>
+              <div class="icon-data fl">
+                <img :src="starUrl"/>
+                <small v-if="item.apiCollectionTimes"> {{item.apiCollectionTimes}}</small>
+                <small v-else> 0</small>
+              </div>
+              <div class="icon-data fr">
+                <img :src="watchUrl"/>
+                <small v-if="item.apiBookedTimes"> {{item.apiBookedTimes}}</small>
+                <small v-else> 0</small>
+              </div>
+              <div class="clear-float"></div>
+            </div>
+          </div>
       </div>
       <!--数据-->
       <p class="index-title">
@@ -169,7 +206,7 @@
         <span class="map-more" @click="goMoreData">更多 >></span>
       </p>
       <div class="api-condition mar-top-30 mar-b-20">
-        <div class="api" v-for="(item, index) in mapDataList" :key="item.name + '_' +index" :title="item.apiName">
+       <!--  <div class="api" v-for="(item, index) in mapDataList" :key="item.name + '_' +index" :title="item.apiName">
           <img :src="defaultUrl" v-if="!item.filePath"/>
           <img :src="item.filePath" v-if="item.filePath"/><br/>
           <span class="new" v-if="item.isNew">NEW</span>
@@ -178,7 +215,34 @@
            <span class="api-name">{{item.name.substring(0, 10)}}</span>
           
           <el-button type="primary" class="btn" @click="goDataDetail(item)">立即下载</el-button>
-        </div>
+        </div> -->
+
+          <div class="api" v-for="(item, index) in mapDataList" :key="index" @click="goDataDetail(item)">
+            <img :src="defaultUrl" v-if="!item.picPath"/>
+            <img :src="item.picPath" v-if="item.picPath"/><br/>
+            <span class="new" v-if="item.isNew">NEW</span>
+            <span class="api-name">{{item.name}}</span>
+            <span class="api-shortdesc">{{item.shortDescription}}</span>
+            
+            <div class="text-left">
+              <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
+              <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
+              <span class="free" v-if="item.isFree == '0'">免费</span><br/>
+            </div>
+            <div>
+              <div class="icon-data fl">
+                <img :src="starUrl"/>
+                <small> {{item.collectionTimes ? item.collectionTimes : 0}}</small>
+              </div>
+              <div class="icon-data fr">
+                <img :src="downloadUrl"/>
+                <small> {{item.downloadTimes ? item.downloadTimes : 0}}</small>
+              </div>
+              <div class="clear-float"></div>
+            </div>
+            
+            <!-- <el-button type="primary" class="btn" @click="dataDetail(item)">立即下载</el-button> -->
+          </div>
       </div>
       <!--文库-->
       <p class="index-title">
@@ -195,13 +259,15 @@
           <el-table-column type="index" label="序号" width="50" fixed></el-table-column>
           <el-table-column label="标题" prop="name" class-name="text-left doc-name" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <img :src="wordUrl" class="doc-img" v-if="scope.row.docType == 'doc' || scope.row.docType == 'docx'"/>
-              <img :src="pptdUrl" class="doc-img" v-else-if="scope.row.docType == 'ppt'"/>
-              <img :src="pdfUrl" class="doc-img" v-else-if="scope.row.docType == 'pdf'"/>
-              <img :src="txtUrl" class="doc-img" v-else-if="scope.row.docType == 'txt'"/>
-              <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'xlsx' || scope.row.docType == 'xls'"/>
-              <img :src="elseUrl" class="doc-img" v-else/>
-              {{scope.row.name}}
+              <router-link target="_blank" :to="{path: '/doc/detail', query: {id: scope.row.id}}">
+                <img :src="wordUrl" class="doc-img" v-if="scope.row.docType == 'doc' || scope.row.docType == 'docx'"/>
+                <img :src="pptdUrl" class="doc-img" v-else-if="scope.row.docType == 'ppt'"/>
+                <img :src="pdfUrl" class="doc-img" v-else-if="scope.row.docType == 'pdf'"/>
+                <img :src="txtUrl" class="doc-img" v-else-if="scope.row.docType == 'txt'"/>
+                <img :src="excelUrl" class="doc-img" v-else-if="scope.row.docType == 'xlsx' || scope.row.docType == 'xls'"/>
+                <img :src="elseUrl" class="doc-img" v-else/>
+                {{scope.row.name}}
+              </router-link>
             </template>
           </el-table-column>
           <el-table-column label="作者" prop="author" width="100"></el-table-column>
@@ -289,10 +355,10 @@
 </template>
 
 <script>
-  import {getApiList, getClassify, getIndexApiList, getIndexData, getIndexDoc, getIndexNotice, getAllNotice, getMapData} from '@/api/front/index'
+  import {getApiList, getClassify, getIndexApiList, getIndexData, getIndexDoc, getIndexNotice, getAllNotice, getMapData, visitorLog} from '@/api/front/index'
   import {getApiTypeArray} from '@/api/api/index'
   import { getMessageCount} from '@/api/message/index'
-  import {  setToken, setUser, setLoginFlag } from '@/utils/auth'
+  import {  setToken, setUser, setLoginFlag, getToken } from '@/utils/auth'
   import {addOrder} from '@/api/order/index'
   import axios from 'axios'
   import gisMap from '@/components/map/map'
@@ -307,6 +373,9 @@
       if (this.$route.path == '/third') {
         //第三方登陆
         this.init()
+      }
+      if (!getToken()) {//游客访问则记录日志
+        this.addVisitorLog()
       }
     },
     watch: {
@@ -343,6 +412,10 @@
         excelUrl: require('@/assets/images/doc_excel.png'),
         elseUrl: require('@/assets/images/doc_else.png'),
         defaultUrl: require('@/assets/images/default.png'),
+        starUrl: require('@/assets/images/star.png'),
+        watchUrl: require('@/assets/images/watch.png'),
+        downloadUrl: require('@/assets/images/doc_download.png'),
+        priceUrl: require('@/assets/images/price2.png'),
         form: {
           apiType: '',
           sort: '1',
@@ -376,7 +449,7 @@
         basicClassify: [],
         bussinessClassify: [],
         classifyId: '',
-        typeFlag: '1',
+        typeFlag: 1,
         newApiList: [],//最新api
         hotApiList: [],//最热api
         commonApiList: [],//常用api
@@ -447,6 +520,9 @@
         this.$router.push({
           name: 'index'
         })
+      },
+      addVisitorLog() {
+        visitorLog()
       },
       getList() {
         //获取api列表
@@ -693,16 +769,16 @@
           })
       },
       docDetail(row, column, cell, event) {
-        this.$store.state.app.tabCount = 4
-        sessionStorage.setItem('tabNum', 4)
-        if (column.label == '标题') {
-          this.$router.push({
-            name: 'docDetail',
-            query: {
-              id: row.id
-            }
-          })
-        }
+        // this.$store.state.app.tabCount = 4
+        // sessionStorage.setItem('tabNum', 4)
+        // if (column.label == '标题') {
+        //   this.$router.push({
+        //     name: 'docDetail',
+        //     query: {
+        //       id: row.id
+        //     }
+        //   })
+        // }
       },
       goNoticeDetail(data) {
         this.noticeData = data

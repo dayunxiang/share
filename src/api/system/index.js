@@ -181,3 +181,43 @@ export function authorityParamList(form) {
     params: form
   });
 }
+//保存权限配置
+export function saveAuthority(form) {
+  return fetch({
+    url:'/manage/my/api/permission',
+    method: 'post',
+    data: form
+  });
+}
+//获取系统记录统计数据
+export function getStatistics(form) {
+  return fetch({
+    url:'/manage/visit/log/count ',
+    method: 'post',
+    data: form
+  });
+}
+//获取系统记录登录数据
+export function getSystemLog(form) {
+  return fetch({
+    url:'/manage/visit/log/list ',
+    method: 'post',
+    data: form
+  });
+}
+//api批量启用
+export function batchStartApi(form) {
+  return fetch({
+    url:'/manage/my/api/call_type/start',
+    method: 'post',
+    data: form
+  });
+}
+//api批量禁用
+export function batchForbiddenApi(form) {
+  return fetch({
+    url:'/manage/my/api/call_type/forbidden',
+    method: 'post',
+    data: form
+  });
+}

@@ -58,9 +58,15 @@
 		
      <el-dialog title="对象类型" :visible="showBasic" :append-to-body="true"   @close="cancel" width="600px">
       <div class="basic-list">
+        <p class="filter-con">
+          <label>筛选条件：</label>
+          <span>
+            <el-input v-model="filterVal" size="small"></el-input>
+          </span>
+        </p>
         <!-- <span v-for="(item, index) in basicTypeArray" :key="index" @click="chooseBasicType(item, index)">{{item.name}}</span> -->
         <el-checkbox-group v-model="basicTypeList">
-          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
+          <el-checkbox :label="item.type" class="checkbox-mar" :checked="item.checked" v-for="(item, index) in basicTypeFilterArray" :key="'key0' + index">{{item.tableNote}}</el-checkbox>              
         </el-checkbox-group>
       </div>
       <div class="rightPage">
@@ -88,6 +94,7 @@
         showBasic: false,
         basicTypeArray: [],
         chooseTypeArray: [],
+        filterVal: '', //过滤条件
         basicTypeList: [],
 				form: {
           name: '',   //文档名称
@@ -122,7 +129,18 @@
           ]
         },
 			}
-		},
+    },
+    computed: {
+      basicTypeFilterArray() {
+        if (this.filterVal) {
+          return this.basicTypeArray.filter(v => {
+            return v.tableNote.indexOf(this.filterVal) > -1
+          })
+        } else {
+          return this.basicTypeArray
+        }
+      }
+    },
 		created() {
       if (!this.$route.params.id) {
         this.dataId = sessionStorage.getItem('docId')
@@ -232,6 +250,9 @@
             this.form.docType = resp.data.attachmentPattern
             this.form.docPath = resp.data.attachmentPath
             this.form.docId = resp.data.attachmentId
+            if (!this.form.name) {
+              this.form.name = resp.data.attachmentName
+            }
           } else {
              this.$message({
               type: 'success',

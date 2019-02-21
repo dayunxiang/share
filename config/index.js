@@ -8,7 +8,7 @@ module.exports = {
   dev: {
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
-    port: 9992, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 8992, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
 
     // Paths
     assetsSubDirectory: 'static',
@@ -16,28 +16,28 @@ module.exports = {
     proxyTable: {
 
       '/data':{
-        target:'http://192.168.4.156:9005/routing/data/',
+        target:'http://dev.resource.share.jxstjh.com/data/',
         changeOrigin:true,
         pathRewrite: {
           '^/data': '/'
         }
       },
       '/manage':{
-        target:'http://192.168.4.156:9005/routing/manage/',
+        target:'http://dev.resource.share.jxstjh.com/manage/',
         changeOrigin:true,
         pathRewrite: {
           '^/manage': '/'
         }
       },
       '/webapp':{
-        target:'http://192.168.4.156:9005/routing/webapp/',
+        target:'http://dev.resource.share.jxstjh.com/webapp/',
         changeOrigin:true,
         pathRewrite: {
           '^/webapp': '/'
         }
       },
       '/base':{
-        target:'http://192.168.4.156:9005/routing/',
+        target:'http://dev.resource.share.jxstjh.com/base',
         changeOrigin:true,
         pathRewrite: {
           '^/base': '/'

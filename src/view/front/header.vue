@@ -27,7 +27,7 @@
        </div> -->
     </div>
 
-    <div class="nav-container">
+    <div class="nav-container" v-if="!hideNav">
       <div class="nav-bar">
         <!--  -->
         <span class="nav" @click="goIndex">
@@ -42,13 +42,20 @@
         <span class="nav" @click="goDoc"  >
           <span :class="tabNum == 4 ? 'active' : ''">文库</span>
         </span>
+        <span class="nav" @click="goMap"  >
+          <span :class="tabNum == 6 ? 'active' : ''">地图</span>
+        </span>
+        <span class="nav" @click="goProject"  >
+          <span :class="tabNum == 7 ? 'active' : ''">视频</span>
+        </span>
         <span class="nav" @click="goCenter"  >
           <span :class="tabNum == 5 ? 'active' : ''">个人中心</span>
         </span>
+       
 
         <span class="nav-search" >
           <el-input  size="small" v-model="searchName"> 
-            <el-select v-model="searchType" slot="prepend" style="width:80px;" size="small">
+            <el-select v-model="searchType" slot="prepend" style="width:66px;" size="small">
               <el-option label="API" value="1"></el-option>
               <el-option label="数据" value="2"></el-option>
               <el-option label="文档" value="3"></el-option>
@@ -69,6 +76,9 @@
   export default {
     compontents: {
      
+    },
+    props: {
+      hideNav: Boolean
     },
     mounted() {
       if(getUser() && getToken()) {
@@ -101,7 +111,10 @@
       },
       tabCount() {
         return this.$store.state.app.tabCount
-      }
+      },
+      refresh() {
+        return this.$store.state.app.refresh
+      },
     },
     watch: {
       userInfo(val) {
@@ -112,6 +125,14 @@
       },
       tabCount(val) {
         this.tabNum = val
+      },
+      refresh(val) {
+        if (val) {
+          this.getMessage()
+          this.userName = JSON.parse(getUser()).name
+          this.isLogin = true
+          this.$store.state.app.refresh = false
+        }
       }
     },
     data() {
@@ -207,6 +228,12 @@
             sessionStorage.removeItem('menu')
             sessionStorage.removeItem('isFirst')
             this.$store.state.user.menus = []
+            this.$store.state.app.msgCount = 0
+            this.$store.state.app.refresh = false
+            this.$store.state.app.loginFlag = false
+            this.$store.state.app.refreshPage = true
+            this.$store.state.app.lastLogin = {}
+
             if (resp.data) {
               window.location.href = resp.data
             } else {
@@ -246,15 +273,20 @@
           })
           this.$store.state.app.searchDataName = this.searchName
         } else {//doc
-          this.tabNum = 3
+          this.tabNum = 4
           sessionStorage.setItem('tabNum', 4)
           this.$router.push({
             name: 'doc'
           })
           this.$store.state.app.searchDocName = this.searchName
         }
+      },
+      goMap() {
+        window.open('https://map.jxwrd.gov.cn/geoplat/', '_blank')
+      },
+      goProject(){
+        window.open('http://47.96.74.77/home/login?service=http%3A%2F%2F47.96.74.77%3A8082%2Fwcmp%2FtoIndex#/', '_blank')
       }
-      
     }
   }
 </script>

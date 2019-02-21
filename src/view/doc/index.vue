@@ -63,7 +63,9 @@
               <a  @click="submitDoc(scope.row)" v-if="scope.row.status == '1'">提交<span class="btn-space"></span></a>
               <a  @click="onlineDoc(scope.row)"  v-if="scope.row.status == '3'">上架<span class="btn-space"></span></a>
               <a  @click="offlineDoc(scope.row)"  v-if="scope.row.status == '2'">下架<span class="btn-space"></span></a>
-              <a  @click="apiDetail(scope.row)">查看</a>
+              <router-link target="_blank" :to="{path: '/doc/detail', query: {id: scope.row.id}}">
+                <span>查看</span>
+              </router-link>
             </template>
         </el-table-column>
 

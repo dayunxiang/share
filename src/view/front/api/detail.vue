@@ -326,6 +326,7 @@
           this.bookPrice = parseFloat(this.data.payStandard * 50).toFixed(2)
         } else {
           this.$store.state.app.loginFlag = true
+          this.$store.state.app.refreshPage = false
         }
       },
       cancel() {
@@ -391,6 +392,7 @@
           if (resp.code == 200) {
             this.myMessageCon = '付款成功'
             this.showMyMessage = true
+            this.showPay = false
             this.getDetail()
           } else {
             this.$message({

@@ -329,6 +329,7 @@
           this.bookPrice = (parseFloat(this.data.payStandard) * 50).toFixed(2)
         } else {
           this.$store.state.app.loginFlag = true
+          this.$store.state.app.refreshPage = false
         }
         
       },

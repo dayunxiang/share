@@ -34,10 +34,11 @@ export function getBaseList(query) {
 }
 
 //基础数据详情
-export function getBaseDetail(tag, id) {
+export function getBaseDetail(tag, id, query) {
   return fetch({
     url: '/webapp/data/'+ tag + id,
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
 
@@ -89,8 +90,16 @@ export function batchDel(ids) {
 export function getTable(query) {
   return fetch({
     url: '/base/interface/data/generate_form',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
+  });
+}
+//报表查询
+export function getDataList(query) {
+  return fetch({
+    url: '/webapp/data/detail/list',
+    method: 'post',
+    data: query
   });
 }
 

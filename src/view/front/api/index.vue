@@ -45,28 +45,45 @@
             <span class="api-name white-color">基础API订制</span><br/>
             <el-button type="primary" class="btn custom-btn" @click="basicAPi()">立即订制</el-button>
           </div>
-          <div class="api" v-for="(item, index) in apiList" :key="index" :title="item.apiShortDescription" @click="dataDetail(item)">
+          <div class="api" v-for="(item, index) in apiList" :key="index" @click="dataDetail(item)">
             <img :src="defaultUrl" v-if="!item.filePath"/>
             <img :src="item.filePath" v-if="item.filePath"/><br/>
             <span class="new" v-if="item.isNew">NEW</span>
-            <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
-            <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
-            <span class="free" v-if="item.isFree == '0'">免费</span><br/>
             <span class="api-name">{{item.apiName}}</span>
+            <span class="api-shortdesc">{{item.apiShortDescription}}</span>
+            <div class="text-left">
+              <img :src="priceUrl" v-if="item.isFree == '1'" class="money-img">
+              <span class="price" v-if="item.isFree == '1'">{{item.payStandard}}/次</span>
+              <span class="free" v-if="item.isFree == '0'">免费</span>
+            </div>
+            <div>
+              <div class="icon-data fl">
+                <img :src="starUrl"/>
+                <small v-if="item.apiCollectionTimes"> {{item.apiCollectionTimes}}</small>
+                <small v-else> 0</small>
+              </div>
+              <div class="icon-data fr">
+                <img :src="watchUrl"/>
+                <small v-if="item.apiBookedTimes"> {{item.apiBookedTimes}}</small>
+                <small v-else> 0</small>
+              </div>
+              <div class="clear-float"></div>
+            </div>
             
-            <el-button type="primary" class="btn" @click="dataDetail(item)">立即订阅</el-button>
+            <!-- <el-button type="primary" class="btn" @click="dataDetail(item)">立即订阅</el-button> -->
           </div>
 
         </div>
-        <div class="footerPage mb40">
+        <div class="footerPage mb40 special-page">
           <div class="rightPage">
+            <span class="page-total">共&nbsp;{{total}}&nbsp;条</span>
             <el-pagination
               background
               @current-change="handleCurrentChange"
               :current-page.sync="page.page"
               :page-size="page.size"
               layout="total, prev, pager, next, jumper"
-              :total="total">
+              :page-count="pageCount">
             </el-pagination>
           </div>
         </div>
@@ -122,6 +139,8 @@
         defaultUrl: require('@/assets/images/default.png'),
         customUrl: require('@/assets/images/api-custom.png'),
         priceUrl: require('@/assets/images/price2.png'),
+        starUrl: require('@/assets/images/star.png'),
+        watchUrl: require('@/assets/images/watch.png'),
         form: {
           apiType: '',
           sort: '1',
@@ -132,6 +151,7 @@
           page: 1,
           size: 20
         },
+        pageCount: 0,
         total: 0,
         apiList: [],
         apiTypeArray: [
@@ -154,6 +174,9 @@
       }
     },
     methods: {
+      // calcNum(num) {
+      //   return num/1000 >= 1 ? num/1000+'k' : num
+      // },
       getApiType() {
         getApiTypeArray({type: '2', isChild: '0'}).then(resp => {
           this.apiTypeArray = this.apiTypeArray.concat(resp.data)
@@ -176,6 +199,8 @@
           if (resp.code == 200) {
             this.apiList = resp.data.list
             this.total = resp.data.total
+            //this.pageCount = Math.ceil((this.total + 1) / this.page.size)
+            this.pageCount = Math.ceil((this.total - 19) / 20) + 1
           }
         })
       },
@@ -252,6 +277,7 @@
           })
         } else {
           this.$store.state.app.loginFlag = true
+          this.$store.state.app.lastLogin.name = 'basicApi'
         }
         
       }

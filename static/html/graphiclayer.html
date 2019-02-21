@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1,user-scalable=no"
+    />
+    <title>地图</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.9/esri/css/main.css" />
+    <script src="https://js.arcgis.com/4.9/"></script>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        font-size: 14px;
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- for the map -->
+    <div id="viewDiv" style="display: flex;"></div>
+
+    <script>
+      require([
+        'esri/layers/TileLayer',
+        'esri/layers/MapImageLayer',
+        'esri/layers/GraphicsLayer',
+        'esri/Map',
+        'esri/Basemap',
+        'esri/views/MapView',
+        'esri/tasks/GeometryService',
+        'esri/tasks/support/ProjectParameters',
+        'esri/geometry/SpatialReference',
+        'esri/Graphic',
+        'esri/geometry/Point',
+        'esri/symbols/SimpleMarkerSymbol',
+
+        'dojo/domReady!'
+      ], function (
+        TileLayer,
+        MapImageLayer,
+        GraphicsLayer,
+        EsriMap,
+        Basemap,
+        MapView,
+        GeometryService,
+        ProjectParameters,
+        SpatialReference,
+        Graphic,
+        Point,
+        SimpleMarkerSymbol
+      ) {
+        var layer = new TileLayer({
+          url:
+            'https://map.jxwrd.gov.cn/arcgis/rest/services/EsriBaseMap/MapServer'
+        });
+
+        var basemap = new Basemap({
+          baseLayers: [layer]
+        });
+
+        var map = new EsriMap({
+          basemap: basemap
+        });
+
+        var view = new MapView({
+          map: map,
+          container: 'viewDiv'
+        });
+
+        var highlightLayer = new GraphicsLayer({
+          id: 'highlightLayer'
+        });
+        map.add(highlightLayer);
+
+        var point = new Point({
+          longitude: 115.69,
+          latitude: 27.46,
+          spatialReference: new SpatialReference({
+            wkid: 4326
+          }) // 如果 此处坐标系为4490则不需要下面的坐标转换操作，直接添加点到highlightLayer
+        });
+
+        var geomSer = new GeometryService({
+          url:
+            'https://map.jxwrd.gov.cn/arcgis/rest/services/Utilities/Geometry/GeometryServer'
+        });
+        var params = new ProjectParameters({
+          geometries: [point],
+          outSpatialReference: new SpatialReference({
+            wkid: 4490
+          })
+        });
+
+        geomSer.project(params).then(function (response) {
+          var point2 = response[0];
+
+          var markerSymbol = new SimpleMarkerSymbol({
+            color: [226, 119, 40],
+            outline: {
+              color: [255, 255, 255],
+              width: 2
+            }
+          });
+
+          var pointGraphic = new Graphic({
+            attributes: {},
+            geometry: point2,
+            popupTemplate: {},
+            symbol: markerSymbol
+          });
+          highlightLayer.removeAll();
+          highlightLayer.add(pointGraphic);
+        });
+      });
+    </script>
+  </body>
+</html>

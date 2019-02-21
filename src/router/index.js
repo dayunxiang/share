@@ -18,6 +18,14 @@ export const constantRouterMap = [{
   },
   hidden: true
 },
+{ // 文档详情
+  path: '/doc/detail',
+  meta: {
+    access: 1
+  },
+  component: () => import('@/view/front/doc/detail'),
+  hidden: true
+},
 {//前台
   path: '/',
   name: 'main',
@@ -112,14 +120,7 @@ export const constantRouterMap = [{
       },
       component: () => import('@/view/front/doc/more')
     },
-    {
-      path: 'doc/detail',
-      name: 'docDetail',
-      meta: {
-        access: 1
-      },
-      component: () => import('@/view/front/doc/detail')
-    },
+    
      //基础api定制
     {
       path: 'data/addBaseData',
@@ -128,6 +129,14 @@ export const constantRouterMap = [{
         access: 1
       },
       component: () => import('@/view/front/data/addBaseData')
+    },  //基础api定制 编辑 首页跳转
+    {
+      path: 'data/editBaseData',
+      name: 'editBaseData',
+      meta: {
+        access: 1
+      },
+      component: () => import('@/view/front/data/editBaseData')
     }, { //个人基础数据定制详情
       path: 'data/personBase',
       name: 'personBaseDetail',
@@ -505,6 +514,14 @@ export const constantRouterMap = [{
         title: '系统记录'
       },
       component: () => import('@/view/system/log/index')
+    },  {
+      path: '/system/statistics',
+      name: 'logStatistics',
+      meta: {
+        title: '系统记录统计',
+        access: 1
+      },
+      component: () => import('@/view/system/log/statistics')
     }, {
       path: '/api/authority',
       name: 'apiAuthority',
